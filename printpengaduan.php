@@ -1,5 +1,28 @@
 <?php
 
+include 'koneksi.php';
+
+$id_pengaduan = $_GET['id'] ?? 0;
+
+$query = mysqli_query($conn,"
+    SELECT *
+    FROM pengaduan
+    WHERE id_pengaduan = '$id_pengaduan'
+");
+
+$data = mysqli_fetch_assoc($query);
+
+if(!$data){
+    die('Data tidak ditemukan');
+}
+
+$nama     = $data['nama'];
+$nip      = $data['nip'];
+$keluhan  = $data['keluhan'];
+$status   = $data['status'];
+$tanggal  = $data['tanggal'];
+
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -8,47 +31,6 @@ require __DIR__ . '/vendor/autoload.php';
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\SimpleType\Jc;
-
-
-
-$nama     = $_GET['nama'] ?? '-';
-$nip      = $_GET['nip'] ?? '-';
-$keluhan  = $_GET['keluhan'] ?? '-';
-$status   = $_GET['status'] ?? 'Belum';
-
-
-
-$statusText  = 'BELUM DIPROSES';
-$statusColor = '808080';
-$keterangan  = 'Pengaduan telah diterima dan sedang menunggu tindak lanjut dari admin.';
-
-if ($status == 'Diproses') {
-
-    $statusText  = 'SEDANG DIPROSES';
-    $statusColor = '0A2A66';
-
-    $keterangan  =
-        'Pengaduan sedang diproses oleh pihak terkait untuk dilakukan pemeriksaan lebih lanjut.';
-}
-
-if ($status == 'Disetujui') {
-
-    $statusText  = 'PENGADUAN DITERIMA';
-    $statusColor = '16A34A';
-
-    $keterangan  =
-        'Pengaduan telah diterima dan disetujui untuk dilakukan tindakan penanganan.';
-}
-
-if ($status == 'Ditolak') {
-
-    $statusText  = 'PENGADUAN DITOLAK';
-    $statusColor = 'DC2626';
-
-    $keterangan  =
-        'Pengaduan ditolak karena data atau informasi yang diberikan tidak memenuhi ketentuan.';
-}
-
 
 
 $phpWord = new PhpWord();
@@ -92,7 +74,6 @@ if (file_exists($logoPath)) {
         'alignment' => Jc::CENTER
     ]);
 }
-
 
 
 $cellText = $kopTable->addCell(8600, [
@@ -186,7 +167,6 @@ $section->addLine([
 ]);
 
 
-
 $section->addText(
     'LAPORAN PENGADUAN',
     [
@@ -202,32 +182,6 @@ $section->addText(
 );
 
 
-
-$table = $section->addTable([
-    'alignment' => Jc::CENTER,
-    'borderSize' => 0
-]);
-
-$table->addRow();
-
-$table->addCell(9000, [
-    'bgColor' => $statusColor
-])->addText(
-    $statusText,
-    [
-        'bold' => true,
-        'color' => 'FFFFFF',
-        'size' => 11
-    ],
-    [
-        'alignment' => Jc::CENTER
-    ]
-);
-
-$section->addTextBreak(1);
-
-
-
 $infoTable = $section->addTable([
     'borderSize' => 6,
     'borderColor' => 'CCCCCC',
@@ -237,8 +191,7 @@ $infoTable = $section->addTable([
 $data = [
     'Nama'    => $nama,
     'NIP'     => $nip,
-    'Tanggal' => date('d F Y'),
-    'Status'  => $statusText
+    'Tanggal' => date('d F Y', strtotime($tanggal)),
 ];
 
 foreach ($data as $label => $value) {
@@ -254,7 +207,6 @@ foreach ($data as $label => $value) {
 }
 
 $section->addTextBreak(1);
-
 
 
 $section->addText(
@@ -275,28 +227,6 @@ $section->addText(
 );
 
 $section->addTextBreak(1);
-
-
-
-$section->addText(
-    'Keterangan:',
-    [
-        'bold' => true
-    ]
-);
-
-$section->addText(
-    $keterangan,
-    [
-        'size' => 11
-    ],
-    [
-        'alignment' => Jc::BOTH
-    ]
-);
-
-$section->addTextBreak(2);
-
 
 
 $section->addText(

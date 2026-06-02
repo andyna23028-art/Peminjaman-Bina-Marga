@@ -15,15 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const options = document.getElementById("statusOptions");
     const optionItems = document.querySelectorAll(".option");
 
-    let selectedValue = "";
+    let selectedValue = "Tersedia";
     let currentPage = 1;
     const rowsPerPage = 5;
-    let editRow = null;
 
     if (!openBtn || !modal || !tableBody) return;
 
-    selected.innerHTML = `Status <span class="arrow">⌄</span>`;
-    selected.className = "status-selected";
+    selected.innerHTML = `Tersedia <span class="arrow">⌄</span>`;
+    selected.className = "status-selected tersedia";
 
     let arrow = selected.querySelector(".arrow");
 
@@ -41,9 +40,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function showPage(page) {
+
         const rows = getRows();
 
         let totalPages = Math.ceil(rows.length / rowsPerPage);
+
         if (totalPages === 0) totalPages = 1;
 
         if (page > totalPages) page = totalPages;
@@ -54,11 +55,13 @@ document.addEventListener("DOMContentLoaded", function () {
         let visibleRows = [];
 
         rows.forEach((row, index) => {
+
             const isVisible =
                 index >= (page - 1) * rowsPerPage &&
                 index < page * rowsPerPage;
 
-            row.style.display = isVisible ? "table-row" : "none";
+            row.style.display =
+                isVisible ? "table-row" : "none";
 
             if (isVisible) {
                 visibleRows.push(row);
@@ -70,17 +73,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderPagination() {
+
         const rows = getRows();
 
-        let totalPages = Math.ceil(rows.length / rowsPerPage);
+        let totalPages =
+            Math.ceil(rows.length / rowsPerPage);
+
         if (totalPages === 0) totalPages = 1;
 
-        const pagination = document.getElementById("pagination");
+        const pagination =
+            document.getElementById("pagination");
+
         if (!pagination) return;
 
         pagination.innerHTML = "";
 
         const prev = document.createElement("button");
+
         prev.innerHTML = "‹";
         prev.disabled = currentPage === 1;
 
@@ -93,7 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
         pagination.appendChild(prev);
 
         for (let i = 1; i <= totalPages; i++) {
+
             const btn = document.createElement("button");
+
             btn.innerText = i;
 
             if (i === currentPage) {
@@ -108,6 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const next = document.createElement("button");
+
         next.innerHTML = "›";
         next.disabled = currentPage === totalPages;
 
@@ -121,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     openBtn.onclick = () => {
+
         modal.style.display = "flex";
 
         document.querySelector(".modal-content h2").innerText =
@@ -132,18 +145,17 @@ document.addEventListener("DOMContentLoaded", function () {
         uploadLabel.style.display = "block";
         uploadBox.style.display = "block";
 
-        submitBtn.innerText = "Tambah";
-        editRow = null;
-
         resetForm();
     };
 
     closeBtn.onclick = () => {
+
         modal.style.display = "none";
         resetForm();
     };
 
-    window.onclick = (e) => {
+    window.onclick = function (e) {
+
         if (e.target === modal) {
             modal.style.display = "none";
             resetForm();
@@ -151,15 +163,19 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     if (uploadBox && fileInput) {
+
         uploadBox.onclick = () => fileInput.click();
 
         fileInput.onchange = function () {
+
             const file = this.files[0];
+
             if (!file) return;
 
             const reader = new FileReader();
 
-            reader.onload = (e) => {
+            reader.onload = function (e) {
+
                 preview.src = e.target.result;
                 preview.style.display = "block";
             };
@@ -169,271 +185,120 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     selected.onclick = () => {
-        const isOpen = options.style.display === "block";
 
-        options.style.display = isOpen ? "none" : "block";
+        const isOpen =
+            options.style.display === "block";
+
+        options.style.display =
+            isOpen ? "none" : "block";
 
         if (arrow) {
             arrow.style.transform =
-                isOpen ? "rotate(0deg)" : "rotate(180deg)";
+                isOpen
+                    ? "rotate(0deg)"
+                    : "rotate(180deg)";
         }
     };
 
     optionItems.forEach(item => {
+
         item.onclick = () => {
-            const value = item.innerText;
+
+            const value = item.innerText.trim();
 
             selected.innerHTML =
                 `${value} <span class="arrow">⌄</span>`;
 
             selected.className = "status-selected";
+
             selected.classList.add(
                 value.toLowerCase().replace(/\s+/g, "-")
             );
 
             selectedValue = value;
+
+            document.getElementById(
+                "statusInput"
+            ).value = value;
+
             options.style.display = "none";
 
-            arrow = selected.querySelector(".arrow");
+            arrow =
+                selected.querySelector(".arrow");
         };
     });
 
     window.addEventListener("click", function (e) {
+
         if (!e.target.closest(".status-dropdown")) {
+
             options.style.display = "none";
 
             if (arrow) {
-                arrow.style.transform = "rotate(0deg)";
+                arrow.style.transform =
+                    "rotate(0deg)";
             }
         }
     });
 
-    function bindActions(row) {
-        const editBtn = row.querySelector(".edit");
-        const deleteBtn = row.querySelector(".delete");
+    const form = document.querySelector("#modalForm form");
 
-        if (editBtn) {
-            editBtn.onclick = () => {
-                const cells = row.querySelectorAll("td");
-                const inputs = document.querySelectorAll(".form input");
+    form.addEventListener("submit", function(e){
 
-                inputs[0].value = cells[1].innerText;
-                inputs[1].value = cells[2].innerText;
-                inputs[2].value = cells[3].innerText;
-                inputs[3].value = cells[4].innerText;
+        const nama  = document.querySelector('[name="nama_kendaraan"]').value.trim();
+        const plat  = document.querySelector('[name="plat_nomor"]').value.trim();
+        const tipe  = document.querySelector('[name="tipe"]').value.trim();
+        const tahun = document.querySelector('[name="tahun"]').value.trim();
 
-                const statusText =
-                    row.querySelector(".status").innerText;
-
-                selected.innerHTML =
-                    `${statusText} <span class="arrow">⌄</span>`;
-
-                selected.className =
-                    "status-selected " +
-                    statusText.toLowerCase().replace(/\s+/g, "-");
-
-                selectedValue = statusText;
-                arrow = selected.querySelector(".arrow");
-
-                editRow = row;
-
-                document.querySelector(".modal-content h2").innerText =
-                    "Update Data Aset Mobil";
-
-                document.querySelector(".subtitle").innerText =
-                    "Perbarui informasi data aset mobil dengan lengkap dan benar.";
-
-                uploadLabel.style.display = "none";
-                uploadBox.style.display = "none";
-
-                submitBtn.innerText = "Update";
-                modal.style.display = "flex";
-            };
-        }
-
-        if (deleteBtn) {
-            deleteBtn.onclick = () => {
-                const popup = document.createElement("div");
-
-                popup.classList.add("delete-popup");
-
-                popup.innerHTML = `
-                    <div class="delete-box">
-                        <img src="images/hapus.png" class="delete-img">
-
-                        <h2>Hapus Data Aset Mobil?</h2>
-                        <p>Data akan dihapus permanen</p>
-
-                        <div class="delete-buttons">
-                            <button class="btn-batal-delete">
-                                Batal
-                            </button>
-
-                            <button class="btn-hapus-delete">
-                                Hapus
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                document.body.appendChild(popup);
-
-                popup.querySelector(".btn-batal-delete").onclick = () => {
-                    popup.remove();
-                };
-
-                popup.querySelector(".btn-hapus-delete").onclick = () => {
-                    row.remove();
-                    popup.remove();
-
-                    updateNumbering();
-
-                    let totalRows = getRows().length;
-                    let totalPages = Math.ceil(totalRows / rowsPerPage);
-
-                    if (totalPages === 0) totalPages = 1;
-                    if (currentPage > totalPages) {
-                        currentPage = totalPages;
-                    }
-
-                    showPage(currentPage);
-                };
-            };
-        }
-    }
-
-    getRows().forEach(bindActions);
-
-    submitBtn.onclick = () => {
-        const inputs = document.querySelectorAll(".form input");
-
-        const nama = inputs[0].value.trim();
-        const plat = inputs[1].value.trim();
-        const tipe = inputs[2].value.trim();
-        const tahun = inputs[3].value.trim();
-
-        if (!nama || !plat || !tipe || !tahun) {
+        if(!nama || !plat || !tipe || !tahun){
+            e.preventDefault();
             alert("Isi semua data!");
             return;
         }
 
-        const status = selectedValue || "Tersedia";
-
-        if (editRow) {
-            const cells = editRow.querySelectorAll("td");
-
-            cells[1].innerText = nama;
-            cells[2].innerText = plat;
-            cells[3].innerText = tipe;
-            cells[4].innerText = tahun;
-
-            cells[5].innerHTML = `
-                <span class="status ${status.toLowerCase()}">
-                    ${status}
-                </span>
-            `;
-
-            tableBody.prepend(editRow);
-            editRow = null;
-        } else {
-            const row = document.createElement("tr");
-
-            row.classList.add("row-mobil");
-
-            const imageSrc =
-                preview.style.display === "block"
-                    ? preview.src
-                    : "images/default.png";
-
-            row.innerHTML = `
-                <td>
-                    00.
-                    <img src="${imageSrc}" class="mobil-img">
-                </td>
-
-                <td>${nama}</td>
-                <td>${plat}</td>
-                <td>${tipe}</td>
-                <td>${tahun}</td>
-
-                <td class="status-cell">
-                    <span class="status ${status.toLowerCase()}">
-                        ${status}
-                    </span>
-                </td>
-
-                <td>
-                    <div class="action">
-                        <div class="edit">
-                            <img src="images/editfile.png">
-                        </div>
-
-                        <div class="delete">
-                            <img src="images/hapusfile.png">
-                        </div>
-                    </div>
-                </td>
-            `;
-
-            tableBody.prepend(row);
-            bindActions(row);
-        }
-
-        updateNumbering();
-
-        currentPage = 1; 
-        resetForm();
-
-        modal.style.display = "none";
-        showPage(1);
-    };
-
-    function updateNumbering() {
-        const rows = getRows();
-
-        rows.forEach((row, index) => {
-            const cell = row.querySelector("td");
-            const img = cell.querySelector("img");
-
-            cell.innerHTML =
-                `${String(index + 1).padStart(2, "0")}. `;
-
-            if (img) {
-                cell.appendChild(img);
-            }
-        });
-    }
+        document.getElementById("statusInput").value =
+            selectedValue || "Tersedia";
+    });
 
     function resetForm() {
-        document.querySelectorAll(".form input")
-            .forEach(i => i.value = "");
 
-        if (fileInput) fileInput.value = "";
+        document
+            .querySelectorAll(".form input")
+            .forEach(input => {
+                input.value = "";
+            });
+
+        if (fileInput) {
+            fileInput.value = "";
+        }
 
         if (preview) {
+
             preview.src = "";
             preview.style.display = "none";
         }
 
         selected.innerHTML =
-            `Status <span class="arrow">⌄</span>`;
+            `Tersedia <span class="arrow">⌄</span>`;
 
-        selected.className = "status-selected";
-        selectedValue = "";
+        selected.className =
+            "status-selected tersedia";
 
-        arrow = selected.querySelector(".arrow");
+        selectedValue = "Tersedia";
 
-        if (!editRow) {
-            submitBtn.innerText = "Tambah";
-        }
+        document.getElementById(
+            "statusInput"
+        ).value = "Tersedia";
+
+        arrow =
+            selected.querySelector(".arrow");
     }
 
     showPage(1);
-    updateNumbering();
 });
 
-
-const logoutPopup = document.getElementById("logoutPopup");
+const logoutPopup =
+    document.getElementById("logoutPopup");
 
 function openLogout() {
     logoutPopup.style.display = "flex";
@@ -444,15 +309,21 @@ function closeLogout() {
 }
 
 function logout() {
-    window.location.href = "berandabeforelog.php";
+    window.location.href =
+        "berandabeforelog.php";
 }
 
 if (logoutPopup) {
-    logoutPopup.addEventListener("click", function (e) {
-        if (e.target === logoutPopup) {
-            closeLogout();
+
+    logoutPopup.addEventListener(
+        "click",
+        function (e) {
+
+            if (e.target === logoutPopup) {
+                closeLogout();
+            }
         }
-    });
+    );
 }
 
 window.openLogout = openLogout;

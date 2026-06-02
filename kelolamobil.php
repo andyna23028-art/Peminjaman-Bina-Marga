@@ -1,80 +1,148 @@
 <?php
+include 'koneksi.php';
+
 $currentPage = 'kelolamobil';
 
-$dataMobil = [
-    "porsche" => [
-        "nama"=>"PORSCHE 911",
-        "plat"=>"L 333 NTO",
-        "tipe"=>"Sport",
-        "tahun"=>"2025",
-        "gambar"=>"images/porsche.png",
-        "status"=>"Tersedia"
-    ],
-    "reborn" => [
-        "nama"=>"INNOVA REBORN",
-        "plat"=>"L 000 GJY",
-        "tipe"=>"MPV",
-        "tahun"=>"2022",
-        "gambar"=>"images/reborn.png",
-        "status"=>"Dipinjam"
-    ],
-    "denza" => [
-        "nama"=>"DENZA D9",
-        "plat"=>"L 188 BUD",
-        "tipe"=>"Electric",
-        "tahun"=>"2024",
-        "gambar"=>"images/denza.png",
-        "status"=>"Tersedia"
-    ],
-    "camry" => [
-        "nama"=>"CAMRY",
-        "plat"=>"L 333 NYE",
-        "tipe"=>"Sedan",
-        "tahun"=>"2021",
-        "gambar"=>"images/camry.png",
-        "status"=>"Maintenance"
-    ],
-    "gclass" => [
-        "nama"=>"G CLASS",
-        "plat"=>"L 123 YRH",
-        "tipe"=>"SUV",
-        "tahun"=>"2023",
-        "gambar"=>"images/gclass.png",
-        "status"=>"Tersedia"
-    ],
-    "ionic" => [
-        "nama"=>"IONIC 5",
-        "plat"=>"L 111 NTH",
-        "tipe"=>"Electric",
-        "tahun"=>"2024",
-        "gambar"=>"images/ionic.png",
-        "status"=>"Tersedia"
-    ],
-    "zenix" => [
-        "nama"=>"ZENIX",
-        "plat"=>"L 333 SBI",
-        "tipe"=>"Hybrid",
-        "tahun"=>"2023",
-        "gambar"=>"images/zenix.png",
-        "status"=>"Dipinjam"
-    ],
-    "audi" => [
-        "nama"=>"AUDI",
-        "plat"=>"L 444 RYY",
-        "tipe"=>"Sedan",
-        "tahun"=>"2022",
-        "gambar"=>"images/audi.png",
-        "status"=>"Maintenance"
-    ],
-    "sclass" => [
-        "nama"=>"S CLASS",
-        "plat"=>"L 333 KNG",
-        "tipe"=>"Luxury",
-        "tahun"=>"2023",
-        "gambar"=>"images/sclass.png",
-        "status"=>"Dipinjam"
-    ]
-];
+$query = mysqli_query($conn,"
+    SELECT *
+    FROM kendaraan
+    WHERE kategori='Mobil'
+    ORDER BY id_kendaraan DESC
+");
+
+if(isset($_POST['simpan'])){
+
+    $nama = $_POST['nama_kendaraan'];
+    $plat = $_POST['plat_nomor'];
+    $tipe = $_POST['tipe'];
+    $tahun = $_POST['tahun'];
+    $status = $_POST['status'];
+    $kategori = $_POST['kategori'];
+
+    $gambar = $_FILES['gambar']['name'];
+    $tmp = $_FILES['gambar']['tmp_name'];
+
+    move_uploaded_file($tmp,"uploads/".$gambar);
+
+    mysqli_query($conn,"
+        INSERT INTO kendaraan
+        (
+            kategori,
+            nama_kendaraan,
+            plat_nomor,
+            tipe,
+            tahun,
+            gambar,
+            status
+        )
+        VALUES
+        (
+            '$kategori',
+            '$nama',
+            '$plat',
+            '$tipe',
+            '$tahun',
+            '$gambar',
+            '$status'
+        )
+    ");
+
+    header("Location: kelolamobil.php");
+    exit;
+}
+
+if(isset($_GET['hapus'])){
+
+    $id = $_GET['hapus'];
+
+    $data = mysqli_fetch_assoc(
+        mysqli_query(
+            $conn,
+            "SELECT gambar
+            FROM kendaraan
+            WHERE id_kendaraan='$id'"
+        )
+    );
+
+    if(file_exists("uploads/".$data['gambar'])){
+        unlink("uploads/".$data['gambar']);
+    }
+
+    mysqli_query(
+        $conn,
+        "DELETE FROM kendaraan
+        WHERE id_kendaraan='$id'"
+    );
+
+    header("Location: kelolamobil.php");
+    exit;
+}
+
+$editMode = false;
+
+if(isset($_GET['edit'])){
+
+    $editMode = true;
+
+    $idEdit = $_GET['edit'];
+
+    $editData = mysqli_fetch_assoc(
+        mysqli_query(
+            $conn,
+            "SELECT *
+            FROM kendaraan
+            WHERE id_kendaraan='$idEdit'"
+        )
+    );
+}
+
+if(isset($_POST['update'])){
+
+    $id = $_POST['id_kendaraan'];
+
+    $nama = $_POST['nama_kendaraan'];
+    $plat = $_POST['plat_nomor'];
+    $tipe = $_POST['tipe'];
+    $tahun = $_POST['tahun'];
+    $status = $_POST['status'];
+
+    mysqli_query($conn,"
+        UPDATE kendaraan
+        SET
+            nama_kendaraan='$nama',
+            plat_nomor='$plat',
+            tipe='$tipe',
+            tahun='$tahun',
+            status='$status'
+        WHERE id_kendaraan='$id'
+    ");
+
+    header("Location: kelolamobil.php");
+    exit;
+}if(isset($_POST['update'])){
+
+    $id = $_POST['id_kendaraan'];
+
+    $nama = $_POST['nama_kendaraan'];
+    $plat = $_POST['plat_nomor'];
+    $tipe = $_POST['tipe'];
+    $tahun = $_POST['tahun'];
+    $status = $_POST['status'];
+
+    mysqli_query($conn,"
+        UPDATE kendaraan
+        SET
+            nama_kendaraan='$nama',
+            plat_nomor='$plat',
+            tipe='$tipe',
+            tahun='$tahun',
+            status='$status'
+        WHERE id_kendaraan='$id'
+    ");
+
+    header("Location: kelolamobil.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -941,45 +1009,51 @@ tr {
                     <th>Tipe</th>
                     <th>Tahun</th>
                     <th>Status</th>
-                    <th></th>
+                    <th>Aksi</th>
                 </tr>
                 </thead>
 
                 <tbody id="tableBody">
-                <?php $no=1; foreach($dataMobil as $m): ?>
-                <tr class="row-mobil">
 
-                    <td>
-                        <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
-                        <img src="<?= $m['gambar'] ?>" class="mobil-img">
-                    </td>
+                    <?php $no=1; while($m = mysqli_fetch_assoc($query)): ?>
 
-                    <td><?= $m['nama'] ?></td>
-                    <td><?= $m['plat'] ?></td>
-                    <td><?= $m['tipe'] ?></td>
-                    <td><?= $m['tahun'] ?></td>
+                    <tr>
 
-                    <td class="status-cell">
-                        <span class="status <?= strtolower($m['status']) ?>">
-                            <?= $m['status'] ?>
-                        </span>
-                    </td>
+                        <td>
+                            <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
+                            <img src="uploads/<?= $m['gambar'] ?>" class="mobil-img">
+                        </td>
 
-                    <td>
-                        <div class="action">
-                            <div class="edit">
-                                <img src="images/editfile.png">
+                        <td><?= $m['nama_kendaraan'] ?></td>
+                        <td><?= $m['plat_nomor'] ?></td>
+                        <td><?= $m['tipe'] ?></td>
+                        <td><?= $m['tahun'] ?></td>
+
+                        <td class="status-cell">
+                            <span class="status <?= strtolower($m['status']) ?>">
+                                <?= $m['status'] ?>
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="action">
+
+                                <a href="kelolamobil.php?edit=<?= $m['id_kendaraan'] ?>">
+                                    <img src="images/editfile.png">
+                                </a>
+                                <a href="?hapus=<?= $m['id_kendaraan'] ?>"
+                                onclick="return confirm('Hapus kendaraan ini?')">
+                                    <img src="images/hapusfile.png">
+                                </a>
+
                             </div>
+                        </td>
 
-                            <div class="delete">
-                                <img src="images/hapusfile.png">
-                            </div>
-                        </div>
-                    </td>
+                    </tr>
 
-                </tr>
-                <?php endforeach; ?>
-                </tbody>
+                    <?php endwhile; ?>
+
+                    </tbody>
 
             </table>
 
@@ -994,25 +1068,55 @@ tr {
 
 
 <div class="modal" id="modalForm">
-    <div class="modal-content fade-up fade-delay-3">
 
-        <h2>Buat Data Aset</h2>
+    <form
+        class="modal-content fade-up fade-delay-3"
+        method="POST"
+        enctype="multipart/form-data"
+        >
+
+        <h2>
+            <?= $editMode ? 'Edit Data Aset' : 'Buat Data Aset' ?>
+        </h2>
+
         <div class="subtitle">
             Masukkan informasi aset baru dengan lengkap dan benar.
         </div>
 
         <div class="form">
+
             <label>Nama</label>
-            <input type="text">
+            <input
+                type="text"
+                name="nama_kendaraan"
+                value="<?= $editMode ? $editData['nama_kendaraan'] : '' ?>"
+                required
+            >
 
             <label>Plat</label>
-            <input type="text">
+            <input
+                type="text"
+                name="plat_nomor"
+                value="<?= $editMode ? $editData['plat_nomor'] : '' ?>"
+                required
+            >
 
             <label>Tipe</label>
-            <input type="text">
+            <input
+                type="text"
+                name="tipe"
+                value="<?= $editMode ? $editData['tipe'] : '' ?>"
+                required
+            >
 
             <label>Tahun</label>
-            <input type="text">
+            <input
+                type="number"
+                name="tahun"
+                value="<?= $editMode ? $editData['tahun'] : '' ?>"
+                required
+            >
+
         </div>
 
         <div class="upload-label">
@@ -1020,38 +1124,103 @@ tr {
         </div>
 
         <div class="upload-box" id="uploadBox">
-            <img src="images/unggah.png" class="upload-icon">
+
+            <img
+                src="images/unggah.png"
+                class="upload-icon"
+            >
 
             <div>klik untuk mengunggah</div>
             <small>Seret dan lepas berkas disini</small>
 
-            <img id="previewImg" class="preview-img">
-            <input type="file" id="fileInput" hidden>
+            <img
+                id="previewImg"
+                class="preview-img"
+            >
+
+            <input
+                type="file"
+                id="fileInput"
+                name="gambar"
+                accept="image/*"
+                hidden
+            >
+
         </div>
 
         <div class="status-dropdown">
-    <div class="status-selected" id="selectedStatus">
-        Status
-<span class="arrow">⌄</span>
-    </div>
 
-    <div class="status-options" id="statusOptions">
-        <div class="option tersedia">Tersedia</div>
-        <div class="option dipinjam">Dipinjam</div>
-        <div class="option maintenance">Maintenance</div>
-    </div>
-</div>
+            <div
+                class="status-selected"
+                id="selectedStatus"
+            >
+                Status
+                <span class="arrow">⌄</span>
+            </div>
+
+            <input
+                type="hidden"
+                id="statusInput"
+                name="status"
+                value="Tersedia"
+            >
+
+            <!-- untuk halaman mobil -->
+            <input
+                type="hidden"
+                name="kategori"
+                value="Mobil"
+            >
+
+            <div
+                class="status-options"
+                id="statusOptions"
+            >
+                <div class="option tersedia">
+                    Tersedia
+                </div>
+
+                <div class="option dipinjam">
+                    Dipinjam
+                </div>
+
+                <div class="option maintenance">
+                    Maintenance
+                </div>
+            </div>
+
+        </div>
+
         <div class="modal-footer">
-            <button type="button" class="btn-batal" id="closeModal">
+
+            <button
+                type="button"
+                class="btn-batal"
+                id="closeModal"
+            >
                 Batal
             </button>
 
-            <button type="button" class="btn-submit">
-                Tambah
+            <button
+                type="submit"
+                class="btn-submit"
+                name="<?= $editMode ? 'update' : 'simpan' ?>"
+            >
+                <?= $editMode ? 'Update' : 'Tambah' ?>
             </button>
+
         </div>
 
-    </div>
+        <?php if($editMode): ?>
+            <input
+                type="hidden"
+                name="id_kendaraan"
+                value="<?= $editData['id_kendaraan'] ?>"
+            >
+        <?php endif; ?>
+
+    </form>
+
 </div>
 
 <div class="popup" id="logoutPopup">
@@ -1066,5 +1235,10 @@ tr {
     </div>
 </div>
 <script src="kelolamobil.js"></script>
+<?php if($editMode): ?>
+<script>
+document.getElementById('modalForm').style.display='flex';
+</script>
+<?php endif; ?>
 </body>
 </html>

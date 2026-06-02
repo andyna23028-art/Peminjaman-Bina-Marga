@@ -1,4 +1,20 @@
 <?php
+session_start();
+include 'koneksi.php';
+
+// cek apakah admin sudah login
+if(!isset($_SESSION['admin'])){
+    header("Location: loginuser.php");
+    exit;
+}
+
+$id_admin = $_SESSION['admin'];
+
+$query = mysqli_query($conn,
+    "SELECT * FROM admin WHERE id_admin='$id_admin'");
+
+$admin = mysqli_fetch_assoc($query);
+
 $currentPage = 'profileadmin';
 ?>
 
@@ -505,7 +521,7 @@ body {background:#f4f4f4;display:flex;}
 
         <div class="profile-info">
 
-    <img src="images/profile.png" class="profile-img">
+    <img src="images/<?php echo $admin['foto']; ?>" class="profile-img">
 
     <div class="info-right">
 
@@ -538,25 +554,25 @@ body {background:#f4f4f4;display:flex;}
         <div class="detail-row">
             <label>Username</label>
             <div class="colon">:</div>
-            <div class="value">Muhammad Ryan Ardiansyah</div>
+            <div class="value">
+    <?php echo $admin['username']; ?>
+        </div>
         </div>
 
         <div class="detail-row">
             <label>NIP</label>
             <div class="colon">:</div>
-            <div class="value">199203102015021001</div>
+            <div class="value">
+    <?php echo $admin['nip']; ?>
         </div>
-
-        <div class="detail-row">
-            <label>No.Tlpn</label>
-            <div class="colon">:</div>
-            <div class="value">+62 89612548511</div>
         </div>
 
         <div class="detail-row">
             <label>Password</label>
             <div class="colon">:</div>
-            <div class="value">**************</div>
+            <div class="value">
+    <?php echo str_repeat('*', 12); ?>
+        </div>
         </div>
 
     </div>

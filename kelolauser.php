@@ -1,15 +1,31 @@
 <?php
 $currentPage = 'kelolauser';
 
-$users = [
-    ["nama"=>"Muhammad Ryan Ardiansyah","NIP"=>"199203102015021001", "telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Rakadia Pangestu","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Berliana Meisintia S","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Andyna Aulia Azzahra","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Naufal Abdul Muthalib","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Jasmine Aurora Angelita","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-    ["nama"=>"Oliver Alexander","NIP"=>"199203102015021001","telp"=>"+62 89612548511","foto"=>"images/profile.png"],
-];
+session_start();
+
+if(!isset($_SESSION['admin'])){
+    header("Location: loginuser.php");
+    exit;
+}
+
+include 'koneksi.php';
+
+// PROSES HAPUS USER
+if(isset($_GET['hapus'])){
+
+    $id = (int)$_GET['hapus'];
+
+    mysqli_query(
+        $conn,
+        "DELETE FROM user WHERE id_user = $id"
+    );
+
+    header("Location: kelolauser.php");
+    exit;
+}
+
+// AMBIL DATA USER
+$query = mysqli_query($conn,"SELECT * FROM user");
 ?>
 
 <!DOCTYPE html>
@@ -595,24 +611,48 @@ body {
 
 <div class="table-body">
 
-<?php $no=1; foreach($users as $u): ?>
+<?php
+$no = 1;
+
+while($u = mysqli_fetch_assoc($query)):
+?>
+
 <div class="row">
-    <div class="no"><?= $no++ ?>.</div>
+
+    <div class="no">
+        <?= $no++ ?>.
+    </div>
 
     <div>
-        <img src="<?= $u['foto'] ?>" class="avatar">
+        <img src="images/<?= $u['foto']; ?>" class="avatar">
     </div>
 
-    <div><?= $u['nama'] ?></div>
-    <div><?= $u['NIP'] ?></div>
-    <div><?= $u['telp'] ?></div>
-    <div>********</div>
+    <div>
+        <?= $u['username']; ?>
+    </div>
+
+    <div>
+        <?= $u['nip']; ?>
+    </div>
+
+    <div>
+        <?= $u['no_hp']; ?>
+    </div>
+
+    <div>
+        ********
+    </div>
 
     <div class="delete">
-        <img src="images/hapusfile.png">
-    </div>
+    <img
+        src="images/hapusfile.png"
+        data-id="<?= $u['id_user']; ?>"
+        class="btn-delete">
 </div>
-<?php endforeach; ?>
+
+</div>
+
+<?php endwhile; ?>
 
 </div>
 </div> 
@@ -621,17 +661,22 @@ body {
 <div class="pagination" id="pagination"></div>
 
 <div class="popup-hapus" id="popupHapus">
-    <div class="box-hapus">
-        <img src="images/hapus.png">
+<div class="box-hapus">
 
-        <h3>Hapus User?</h3>
-<p>Data user akan dihapus permanen dan tidak dapat dikembalikan</p>
-        <div class="btn-group">
-            <button class="btn-batal" id="btnBatal">Batal</button>
-            <button class="btn-hapus">Hapus</button>
-        </div>
+    <input type="hidden" id="idHapus">
+
+    <img src="images/hapus.png">
+
+    <h3>Hapus User?</h3>
+
+    <p>Data user akan dihapus permanen dan tidak dapat dikembalikan</p>
+
+    <div class="btn-group">
+        <button class="btn-batal" id="btnBatal">Batal</button>
+        <button class="btn-hapus">Hapus</button>
     </div>
-</div>
+</div> 
+</div>    
 
 <div class="popup" id="logoutPopup">
     <div class="popup-content">

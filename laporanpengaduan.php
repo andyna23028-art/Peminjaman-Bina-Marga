@@ -1,50 +1,27 @@
 <?php
+include 'koneksi.php';
+
 $currentPage = 'laporanpengaduan';
 
-$dataPengaduan = [
-    [
-        "nama" => "Muhammad Ryan Ardiansyah",
-        "nip" => "199203102015021001",
-        "keluhan" => "Mobil ban kempes jadi ke tukang tambal ban dulu aku ribet",
-        "status" => "Belum"
-    ],
-    [
-        "nama" => "Rakadia Pangestu",
-        "nip" => "199203102015021001",
-        "keluhan" => "Ban Bocor dan rusak loo saya ganti sendiri ban baru gimana si",
-        "status" => "Belum"
-    ],
-    [
-        "nama" => "Berliana Meisintia",
-        "nip" => "199203102015021001",
-        "keluhan" => "Rem tidak ceket hampir nambrak astaga harusnya dimaintanance dong gimana tanggungjawabnya",
-        "status" => "Belum"
-    ],
-    [
-        "nama" => "Andyna Aulia Azzahra",
-        "nip" => "199203102015021001",
-        "keluhan" => "Ruangan AC ga dingin rusak apa gimana",
-        "status" => "Belum"
-    ],
-      [
-        "nama" => "Devano Mahendra",
-        "nip" => "199203102015021001",
-        "keluhan" => "Kotor ga dibersihkan ini kaya sarang ayam",
-        "status" => "Belum"
-    ],
-      [
-        "nama" => "Darka Rey",
-        "nip" => "199203102015021001",
-        "keluhan" => "Setir Motor berat looo ",
-        "status" => "Belum"
-    ],
-      [
-        "nama" => "Anwar Putra",
-        "nip" => "199203102015021001",
-        "keluhan" => "Ruangan licin hampir kepeleset saya gimana",
-        "status" => "Belum"
-    ]
-];
+$query = mysqli_query($conn,"
+    SELECT *
+    FROM pengaduan
+    ORDER BY tanggal DESC
+");
+
+$dataPengaduan = [];
+
+while($row = mysqli_fetch_assoc($query)){
+    $dataPengaduan[] = [
+        "id_pengaduan" => $row['id_pengaduan'],
+        "nama" => $row['nama'],
+        "nip" => $row['nip'],
+        "keluhan" => $row['keluhan'],
+        "status" => $row['status']
+    ];
+}
+$currentPage = 'laporanpengaduan';
+
 ?>
 
 <!DOCTYPE html>
@@ -766,8 +743,6 @@ body{
 
 </div>
 
-
-
 <div class="content">
 
     <div class="header">
@@ -777,15 +752,95 @@ body{
     <div class="table-wrapper">
 
         <div class="table-head">
-            <div></div>
+            <div>No</div>
             <div>Nama</div>
             <div>NIP</div>
             <div>Keluhan</div>
             <div>Status</div>
-            <div></div>
-        </div>
+            <div>Aksi</div>
+    </div>
 
-        <div class="table-body" id="tableBody"></div>
+        <div class="table-body">
+
+<?php
+$no = 1;
+foreach($dataPengaduan as $row):
+?>
+
+<div class="table-row">
+
+    <div class="no">
+        <?= $no++; ?>
+    </div>
+
+    <div class="nama">
+        <?= htmlspecialchars($row['nama']); ?>
+    </div>
+
+    <div class="nip">
+        <?= htmlspecialchars($row['nip']); ?>
+    </div>
+
+    <div class="keluhan">
+        <?= htmlspecialchars($row['keluhan']); ?>
+    </div>
+
+    <div class="status">
+
+        <form action="status_pengaduan.php" method="POST">
+
+            <input
+                type="hidden"
+                name="id_pengaduan"
+                value="<?= $row['id_pengaduan']; ?>"
+            >
+
+            <select
+                name="status"
+                onchange="this.form.submit()"
+                class="<?= strtolower(str_replace(' ','',$row['status'])) ?>"
+            >
+                <option value="Belum" <?= $row['status']=='Belum'?'selected':'' ?>>
+                    Belum
+                </option>
+
+                <option value="Diproses" <?= $row['status']=='Diproses'?'selected':'' ?>>
+                    Diproses
+                </option>
+
+                <option value="Disetujui" <?= $row['status']=='Disetujui'?'selected':'' ?>>
+                    Disetujui
+                </option>
+
+                <option value="Ditolak" <?= $row['status']=='Ditolak'?'selected':'' ?>>
+                    Ditolak
+                </option>
+
+            </select>
+
+        </form>
+
+    </div>
+
+    <div class="action">
+
+        <a href="printpengaduan.php?id=<?= $row['id_pengaduan']; ?>">
+            <img src="images/print.png">
+        </a>
+
+        <a href="hapus_pengaduan.php"
+        class="btn-delete"
+        data-id="<?= $row['id_pengaduan']; ?>">
+            <img src="images/hapusfile.png">
+        </a>
+
+    </div>
+
+</div>
+
+<?php endforeach; ?>
+
+</div>
 
 <div class="pagination" id="pagination"></div>
 
@@ -849,11 +904,242 @@ body{
 
 </div>
 
+
 <script>
-window.dataPengaduan = <?php echo json_encode($dataPengaduan); ?>;
+/* =========================
+   POPUP LOGOUT
+========================= */
+
+function openLogout(){
+    document.getElementById("logoutPopup").style.display="flex";
+}
+
+function closeLogout(){
+    document.getElementById("logoutPopup").style.display="none";
+}
+
+function logout(){
+    window.location.href="loginadmin.php";
+}
+
+/* =========================
+   POPUP HAPUS
+========================= */
+
+let selectedId = null;
+
+const popupHapus = document.getElementById("popupHapus");
+const btnHapus = document.getElementById("btnHapus");
+const btnBatal = document.getElementById("btnBatal");
+
+document.querySelectorAll(".btn-delete").forEach(btn=>{
+
+    btn.addEventListener("click",function(e){
+
+        e.preventDefault();
+
+        selectedId = this.dataset.id;
+
+        popupHapus.style.display="flex";
+
+    });
+
+});
+
+btnBatal.addEventListener("click",()=>{
+
+    popupHapus.style.display="none";
+    selectedId = null;
+
+});
+
+btnHapus.addEventListener("click",()=>{
+
+    if(selectedId){
+
+        window.location.href =
+        "hapus_pengaduan.php?id=" + selectedId;
+
+    }
+
+});
+
+/* =========================
+   PAGINATION
+========================= */
+
+const rows = document.querySelectorAll(".table-row");
+const pagination = document.getElementById("pagination");
+
+const rowsPerPage = 5;
+
+let currentPage = 1;
+
+function showPage(page){
+
+    currentPage = page;
+
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    rows.forEach((row,index)=>{
+
+        row.style.display =
+        index >= start && index < end
+        ? "grid"
+        : "none";
+
+    });
+
+    updatePagination();
+
+}
+
+function updatePagination(){
+
+    pagination.innerHTML = "";
+
+    const totalPages =
+    Math.ceil(rows.length / rowsPerPage);
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "‹";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => showPage(currentPage - 1);
+    pagination.appendChild(prevBtn);
+    for(let i=1;i<=totalPages;i++){
+        const btn =
+        document.createElement("button");
+        btn.innerText = i;
+        if(i===currentPage){
+            btn.classList.add("active");
+        }
+        btn.onclick =
+        ()=> showPage(i);
+        pagination.appendChild(btn);
+
+    }
+
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "›";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => showPage(currentPage + 1);
+    pagination.appendChild(nextBtn);
+
+}
+
+showPage(1);
+</script><script>
+/* POPUP LOGOUT*/
+function openLogout(){
+    document.getElementById("logoutPopup").style.display="flex";
+}
+function closeLogout(){
+    document.getElementById("logoutPopup").style.display="none";
+}
+function logout(){
+    window.location.href="loginadmin.php";
+}
+
+/*POPUP HAPUS*/
+let selectedId = null;
+
+const popupHapus = document.getElementById("popupHapus");
+const btnHapus = document.getElementById("btnHapus");
+const btnBatal = document.getElementById("btnBatal");
+
+document.querySelectorAll(".btn-delete").forEach(btn=>{
+    btn.addEventListener("click",function(e){
+        e.preventDefault();
+        selectedId = this.dataset.id;
+        popupHapus.style.display="flex";
+
+    });
+
+});
+btnBatal.addEventListener("click",()=>{
+    popupHapus.style.display="none";
+    selectedId = null;
+});
+btnHapus.addEventListener("click",()=>{
+    if(selectedId){
+        window.location.href =
+        "hapus_pengaduan.php?id=" + selectedId;
+
+    }
+});
+
+/*PAGINATION*/
+const rows = document.querySelectorAll(".table-row");
+const pagination = document.getElementById("pagination");
+const rowsPerPage = 5;
+let currentPage = 1;
+function showPage(page){
+    currentPage = page;
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    rows.forEach((row,index)=>{
+        row.style.display =
+        index >= start && index < end
+        ? "grid"
+        : "none";
+    });
+    updatePagination();
+}
+
+function updatePagination(){
+
+    pagination.innerHTML = "";
+
+    const totalPages =
+    Math.ceil(rows.length / rowsPerPage);
+
+    const prevBtn =
+    document.createElement("button");
+
+    prevBtn.innerHTML = "&laquo;";
+
+    prevBtn.disabled =
+    currentPage === 1;
+
+    prevBtn.onclick =
+    ()=> showPage(currentPage - 1);
+
+    pagination.appendChild(prevBtn);
+
+    for(let i=1;i<=totalPages;i++){
+
+        const btn =
+        document.createElement("button");
+
+        btn.innerText = i;
+
+        if(i===currentPage){
+            btn.classList.add("active");
+        }
+
+        btn.onclick =
+        ()=> showPage(i);
+
+        pagination.appendChild(btn);
+
+    }
+
+    const nextBtn =
+    document.createElement("button");
+
+    nextBtn.innerHTML = "&raquo;";
+
+    nextBtn.disabled =
+    currentPage === totalPages;
+
+    nextBtn.onclick =
+    ()=> showPage(currentPage + 1);
+
+    pagination.appendChild(nextBtn);
+
+}
+
+showPage(1);
 </script>
-
-<script src="laporanpengaduan.js"></script>
-
 </body>
 </html>
