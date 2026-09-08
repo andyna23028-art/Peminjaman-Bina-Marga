@@ -1,147 +1,21 @@
 <?php
-include 'koneksi.php';
+session_start();
 
 $currentPage = 'kelolamobil';
 
-$query = mysqli_query($conn,"
-    SELECT *
-    FROM kendaraan
-    WHERE kategori='Mobil'
-    ORDER BY id_kendaraan DESC
-");
+require_once 'koneksi.php';
 
-if(isset($_POST['simpan'])){
-
-    $nama = $_POST['nama_kendaraan'];
-    $plat = $_POST['plat_nomor'];
-    $tipe = $_POST['tipe'];
-    $tahun = $_POST['tahun'];
-    $status = $_POST['status'];
-    $kategori = $_POST['kategori'];
-
-    $gambar = $_FILES['gambar']['name'];
-    $tmp = $_FILES['gambar']['tmp_name'];
-
-    move_uploaded_file($tmp,"uploads/".$gambar);
-
-    mysqli_query($conn,"
-        INSERT INTO kendaraan
-        (
-            kategori,
-            nama_kendaraan,
-            plat_nomor,
-            tipe,
-            tahun,
-            gambar,
-            status
-        )
-        VALUES
-        (
-            '$kategori',
-            '$nama',
-            '$plat',
-            '$tipe',
-            '$tahun',
-            '$gambar',
-            '$status'
-        )
-    ");
-
-    header("Location: kelolamobil.php");
-    exit;
+if (!$conn) {
+    die("Koneksi database gagal.");
 }
 
-if(isset($_GET['hapus'])){
+$sql = "SELECT * FROM kendaraan
+        WHERE kategori='Mobil'
+        ORDER BY id_kendaraan DESC";
+$query = mysqli_query($conn, $sql);
 
-    $id = $_GET['hapus'];
-
-    $data = mysqli_fetch_assoc(
-        mysqli_query(
-            $conn,
-            "SELECT gambar
-            FROM kendaraan
-            WHERE id_kendaraan='$id'"
-        )
-    );
-
-    if(file_exists("uploads/".$data['gambar'])){
-        unlink("uploads/".$data['gambar']);
-    }
-
-    mysqli_query(
-        $conn,
-        "DELETE FROM kendaraan
-        WHERE id_kendaraan='$id'"
-    );
-
-    header("Location: kelolamobil.php");
-    exit;
-}
-
-$editMode = false;
-
-if(isset($_GET['edit'])){
-
-    $editMode = true;
-
-    $idEdit = $_GET['edit'];
-
-    $editData = mysqli_fetch_assoc(
-        mysqli_query(
-            $conn,
-            "SELECT *
-            FROM kendaraan
-            WHERE id_kendaraan='$idEdit'"
-        )
-    );
-}
-
-if(isset($_POST['update'])){
-
-    $id = $_POST['id_kendaraan'];
-
-    $nama = $_POST['nama_kendaraan'];
-    $plat = $_POST['plat_nomor'];
-    $tipe = $_POST['tipe'];
-    $tahun = $_POST['tahun'];
-    $status = $_POST['status'];
-
-    mysqli_query($conn,"
-        UPDATE kendaraan
-        SET
-            nama_kendaraan='$nama',
-            plat_nomor='$plat',
-            tipe='$tipe',
-            tahun='$tahun',
-            status='$status'
-        WHERE id_kendaraan='$id'
-    ");
-
-    header("Location: kelolamobil.php");
-    exit;
-}if(isset($_POST['update'])){
-
-    $id = $_POST['id_kendaraan'];
-
-    $nama = $_POST['nama_kendaraan'];
-    $plat = $_POST['plat_nomor'];
-    $tipe = $_POST['tipe'];
-    $tahun = $_POST['tahun'];
-    $status = $_POST['status'];
-
-    mysqli_query($conn,"
-        UPDATE kendaraan
-        SET
-            nama_kendaraan='$nama',
-            plat_nomor='$plat',
-            tipe='$tipe',
-            tahun='$tahun',
-            status='$status'
-        WHERE id_kendaraan='$id'
-    ");
-
-    header("Location: kelolamobil.php");
-    exit;
+if (!$query) {
+    die("Query gagal : " . mysqli_error($conn));
 }
 ?>
 
@@ -166,7 +40,9 @@ body {
 
 
 .sidebar {
-    width:260px;
+      width:260px;
+    min-width:260px;
+    flex-shrink:0;
     height:100vh;
     background:#ffffff;
     padding:28px;
@@ -292,15 +168,21 @@ body {
 
 .btn-tambah {
     background:#ffc400;
-    padding:8px 15px;
+    padding:10px 18px;
     border-radius:10px;
+    border:none;          /* TAMBAH INI */
+    outline:none;         /* TAMBAH INI */
     font-weight:600;
-    display:flex;
+    display:inline-flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
     cursor:pointer;
+    transition:0.2s;
 }
-
+.btn-tambah:focus{
+    outline:none;
+    box-shadow:none;
+}
 .btn-tambah img {
     width:18px;
 }
@@ -314,7 +196,6 @@ body {
     flex-direction:column;
 }
 
-
 .table-wrapper{
     background:#f4f4f4;
     border-radius:25px;
@@ -326,12 +207,29 @@ body {
     flex-direction:column;
 
     height:570px;
+
+    overflow:hidden; /* TAMBAH */
 }
 
 
-.table-body{
-    flex:1;
-    overflow:hidden;
+.status{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    color:#fff;
+    min-width:100px;
+    text-align:center;
+}
+.status.tersedia{
+    background:#09DB22;
+}
+.status.dipinjam{
+    background:#FF0000;
+}
+.status.maintenance{
+    background:#071D63;
 }
 
 .pagination{
@@ -435,53 +333,75 @@ body {
 .btn-tambah:active {
     transform:scale(0.95);
 }
+.table-body{
+    flex:1;
+    overflow:hidden;
+}
 
+.table-wrapper{
+    width:100%;
+    overflow:hidden;
+}
 
-table {
+.table-body{
+    width:100%;
+    overflow:hidden;
+}
+
+table{
     width:100%;
     border-collapse:collapse;
-}
-th:nth-child(6) {
-    text-align: center;
-}
-th, td {
-    padding:13px;
-    text-align:left;
+    table-layout:auto;
 }
 
-tr {
-    border-top:1px solid #ccc;
+th,
+td{
+    padding:12px 8px;
+    text-align:center;
+
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+
+    font-size:14px;
 }
 
-
-.mobil-img {
-    width:80px;
-}
-.action {
-    display:flex;
-    gap:10px;
+td img.mobil-img{
+    width:90px;
+    max-width:100%;
 }
 
-
-.edit, .delete {
-    background:transparent;
-    padding:0;
-    border-radius:0;
+.action{
     display:flex;
     align-items:center;
     justify-content:center;
-    cursor:pointer;
+    flex-wrap:nowrap; /* biar ga turun */
+    gap:10px;
 }
 
+td:last-child{
+    white-space:nowrap;
+}
 
-.edit img,
-.delete img {
+.editBtn,
+.delete{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:32px;
+    height:32px;
+
+    flex-shrink:0; /* biar ga mengecil */
+}
+
+.editBtn img,
+.delete img{
     width:25px;
-    transition:0.2s;
 }
 
 
-.edit img:hover,
+.editBtn img:hover,
 .delete img:hover {
     transform:scale(1.15);
     opacity:0.8;
@@ -501,7 +421,7 @@ tr {
 .modal-content {
     background:#f2f2f2;
     width:500px; 
-    padding:30px;
+    padding:15px 20px;
     border-radius:28px;
     text-align:center;
     z-index:100000;
@@ -509,12 +429,12 @@ tr {
 
 
 .modal-content h2 {
-    font-size:22px;
+    font-size:18px;
     color:#1f3c88;
     font-weight:700;
     position:relative;
     display:inline-block;
-    margin-bottom:5px;
+    margin-bottom:2px;
 }
 
 
@@ -540,26 +460,27 @@ tr {
 
 
 .subtitle {
-    font-size:12px;
+    font-size:10px;
     color:#666;
-    margin-bottom:18px;
+    margin-bottom:10px;
 }
 
 
 .form {
     display:grid; 
     grid-template-columns:80px 1fr;
-    gap:10px 12px;
-    margin-bottom:18px;
+    gap:6px 10px;
+    margin-bottom:10px;
 }
 
 .form label {
-    font-size:12px;
+    font-size:10px;
 }
 
 .form input {
-    padding:8px 10px;
-    font-size:12px;
+     height:34px;
+    padding:5px 8px;
+    font-size:11px;
     border-radius:8px;
     border:2px solid #f4c400;
 }
@@ -631,7 +552,6 @@ tr {
     font-size:14px;
     transition:0.3s;
 }
-
 
 .status-selected .arrow.rotate {
     transform:rotate(180deg);
@@ -789,6 +709,31 @@ tr {
 .btn-hapus-delete:hover {
     transform: translateY(-2px);
 }
+.btn-hapus-delete{
+    flex:1;
+    background:#082567;
+    color:#fff;
+
+    border:none;
+    outline:none;
+
+    text-decoration:none; /* INI */
+    
+    padding:10px;
+    border-radius:12px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+.btn-hapus-delete:focus{
+    outline:none;
+}
 
 @keyframes popupFade {
     from {
@@ -805,8 +750,7 @@ tr {
     text-align:center;
 }
 
-
-.status {
+#editStatus {
     display:inline-block;
     padding:6px 14px;
     border-radius:6px;
@@ -814,28 +758,26 @@ tr {
     font-weight:600;
     color:#fff; 
     min-width:100px;
-    text-align:center;
 }
 
 
-.status.tersedia {
+#editStatus.tersedia {
     background:#09DB22;
 }
 
 
-.status.dipinjam {
+#editStatus.dipinjam {
     background:#FF0000;
 }
 
 
-.status.maintenance {
+#editStatus.maintenance {
     background:#071D63;
 }
 .arrow {
     display:inline-block;
     transition:0.3s;
 }
-
 
 .arrow.rotate {
     transform:rotate(180deg);
@@ -997,69 +939,104 @@ tr {
 
                 <thead>
                 <tr>
+
                     <th>
-                        <div class="btn-tambah" id="openModal">
+                        <button type="button" class="btn-tambah" id="openModal">
                             <img src="images/tambah.png">
                             Tambah
-                        </div>
+                        </button>
                     </th>
 
                     <th>Nama</th>
                     <th>Plat</th>
                     <th>Tipe</th>
                     <th>Tahun</th>
+
+                    <!-- TAMBAHAN -->
+                    <th>No. Mesin</th>
+                    <th>No. Rangka</th>
+
                     <th>Status</th>
                     <th>Aksi</th>
+
                 </tr>
                 </thead>
 
                 <tbody id="tableBody">
 
-                    <?php $no=1; while($m = mysqli_fetch_assoc($query)): ?>
+                <?php
+                    $no=1;while($m=mysqli_fetch_assoc($query)):?>
+                        <tr>
+                            <td>
+                                <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
+                                <img src="<?= $m['gambar'] ?>"class="mobil-img">
+                            </td>
 
-                    <tr>
+                            <td><?= htmlspecialchars($m['nama']) ?></td>
 
-                        <td>
-                            <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
-                            <img src="uploads/<?= $m['gambar'] ?>" class="mobil-img">
-                        </td>
+                                <td>
+                                <?= htmlspecialchars($m['plat']) ?>
+                                </td>
 
-                        <td><?= $m['nama_kendaraan'] ?></td>
-                        <td><?= $m['plat_nomor'] ?></td>
-                        <td><?= $m['tipe'] ?></td>
-                        <td><?= $m['tahun'] ?></td>
+                                <td>
+                                <?= htmlspecialchars($m['tipe']) ?>
+                                </td>
 
-                        <td class="status-cell">
-                            <span class="status <?= strtolower($m['status']) ?>">
-                                <?= $m['status'] ?>
-                            </span>
-                        </td>
+                                <td>
+                                <?= $m['tahun'] ?>
+                                </td>
 
-                        <td>
-                            <div class="action">
+                                <!-- TAMBAHAN -->
+                                <td>
+                                <?= htmlspecialchars($m['no_mesin']) ?>
+                                </td>
 
-                                <a href="kelolamobil.php?edit=<?= $m['id_kendaraan'] ?>">
-                                    <img src="images/editfile.png">
-                                </a>
-                                <a href="?hapus=<?= $m['id_kendaraan'] ?>"
-                                onclick="return confirm('Hapus kendaraan ini?')">
-                                    <img src="images/hapusfile.png">
-                                </a>
+                                <td>
+                                <?= htmlspecialchars($m['no_rangka']) ?>
+                                </td>
 
-                            </div>
-                        </td>
+                                <td class="status-cell">
+                                <span class="status <?= strtolower($m['status']) ?>">
+                                    <?= $m['status'] ?>
+                                </span>
+                            </td>
 
-                    </tr>
+                            <td>
+                                <div class="action">
+                                    <a href="#"
+                                    class="editBtn"
 
+                                    data-id="<?= $m['id_kendaraan'] ?>"
+
+                                    data-nama="<?= htmlspecialchars($m['nama']) ?>"
+
+                                    data-plat="<?= htmlspecialchars($m['plat']) ?>"
+
+                                    data-tipe="<?= htmlspecialchars($m['tipe']) ?>"
+
+                                    data-tahun="<?= $m['tahun'] ?>"
+
+                                    data-no_mesin="<?= htmlspecialchars($m['no_mesin']) ?>"
+
+                                    data-no_rangka="<?= htmlspecialchars($m['no_rangka']) ?>"
+
+                                    data-status="<?= $m['status'] ?>">
+                                        <img src="images/editfile.png">
+                                    </a>
+                                    <a href=""
+                                        class="delete"
+                                        data-id="<?= $m['id_kendaraan'] ?>">
+                                        <img src="images/hapusfile.png">
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                     <?php endwhile; ?>
-
-                    </tbody>
-
+                </tbody>
             </table>
 
         </div>
 
-        
         <div class="pagination" id="pagination"></div>
 
     </div>
@@ -1068,160 +1045,295 @@ tr {
 
 
 <div class="modal" id="modalForm">
+    <div class="modal-content fade-up fade-delay-3">
 
-    <form
-        class="modal-content fade-up fade-delay-3"
-        method="POST"
-        enctype="multipart/form-data"
-        >
-
-        <h2>
-            <?= $editMode ? 'Edit Data Aset' : 'Buat Data Aset' ?>
-        </h2>
+        <h2>Buat Data Aset</h2>
 
         <div class="subtitle">
             Masukkan informasi aset baru dengan lengkap dan benar.
         </div>
 
-        <div class="form">
+       <form 
+            id="formMobil"
+            action="simpan_mobil.php"
+            method="POST"
+            enctype="multipart/form-data">
 
-            <label>Nama</label>
-            <input
-                type="text"
-                name="nama_kendaraan"
-                value="<?= $editMode ? $editData['nama_kendaraan'] : '' ?>"
-                required
-            >
-
-            <label>Plat</label>
-            <input
-                type="text"
-                name="plat_nomor"
-                value="<?= $editMode ? $editData['plat_nomor'] : '' ?>"
-                required
-            >
-
-            <label>Tipe</label>
-            <input
-                type="text"
-                name="tipe"
-                value="<?= $editMode ? $editData['tipe'] : '' ?>"
-                required
-            >
-
-            <label>Tahun</label>
-            <input
-                type="number"
-                name="tahun"
-                value="<?= $editMode ? $editData['tahun'] : '' ?>"
-                required
-            >
-
-        </div>
-
-        <div class="upload-label">
-            Unggah foto untuk aset baru
-        </div>
-
-        <div class="upload-box" id="uploadBox">
-
-            <img
-                src="images/unggah.png"
-                class="upload-icon"
-            >
-
-            <div>klik untuk mengunggah</div>
-            <small>Seret dan lepas berkas disini</small>
-
-            <img
-                id="previewImg"
-                class="preview-img"
-            >
-
-            <input
-                type="file"
-                id="fileInput"
-                name="gambar"
-                accept="image/*"
-                hidden
-            >
-
-        </div>
-
-        <div class="status-dropdown">
-
-            <div
-                class="status-selected"
-                id="selectedStatus"
-            >
-                Status
-                <span class="arrow">⌄</span>
-            </div>
-
-            <input
-                type="hidden"
-                id="statusInput"
-                name="status"
-                value="Tersedia"
-            >
-
-            <!-- untuk halaman mobil -->
-            <input
+            <input 
                 type="hidden"
                 name="kategori"
                 value="Mobil"
             >
 
-            <div
-                class="status-options"
-                id="statusOptions"
-            >
-                <div class="option tersedia">
-                    Tersedia
-                </div>
+           <div class="form">
 
-                <div class="option dipinjam">
-                    Dipinjam
-                </div>
+                <label>Nama</label>
+                <input
+                    type="text"
+                    name="nama"
+                    required
+                >
 
-                <div class="option maintenance">
-                    Maintenance
-                </div>
+                <label>Plat</label>
+                <input
+                    type="text"
+                    name="plat"
+                    required
+                >
+
+                <label>Tipe</label>
+                <input
+                    type="text"
+                    name="tipe"
+                    required
+                >
+
+                <label>Tahun</label>
+                <input
+                    type="number"
+                    name="tahun"
+                    min="1900"
+                    max="<?= date('Y') ?>"
+                    required
+                >
+
+                <!-- TAMBAHAN -->
+                <label>No. Mesin</label>
+                <input
+                    type="text"
+                    name="no_mesin"
+                    required
+                >
+
+                <label>No. Rangka</label>
+                <input
+                    type="text"
+                    name="no_rangka"
+                    required
+                >
+
+            </div>
+            
+            <div class="upload-label">
+                Unggah foto untuk aset baru
             </div>
 
-        </div>
+            <div class="upload-box" id="uploadBox">
 
-        <div class="modal-footer">
+                <img
+                    src="images/unggah.png"
+                    class="upload-icon"
+                >
 
-            <button
-                type="button"
-                class="btn-batal"
-                id="closeModal"
-            >
+                <div>klik untuk mengunggah</div>
+                <small>Seret dan lepas berkas disini</small>
+
+                <img
+                    id="previewImg"
+                    class="preview-img"
+                >
+            
+                <input
+                    type="file"
+                    id="fileInput"
+                    name="gambar"
+                    accept="image/*"
+                    hidden
+                >
+
+            </div>
+
+                <div class="status-dropdown">
+
+                <div
+                    class="status-selected"
+                    id="selectedStatus"
+                >
+                    Status
+                    <span class="arrow">⌄</span>
+                </div>
+
+                <input
+                    type="hidden"
+                    id="statusInput"
+                    name="status"
+                    value="Tersedia"
+                >
+
+                <!-- untuk halaman mobil -->
+                <input
+                    type="hidden"
+                    name="kategori"
+                    value="Mobil"
+                >
+
+                <div
+                    class="status-options"
+                    id="statusOptions"
+                >
+                    <div class="option tersedia">
+                        Tersedia
+                    </div>
+
+                    <div class="option dipinjam">
+                        Dipinjam
+                    </div>
+
+                    <div class="option maintenance">
+                        Maintenance
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-batal"
+                    id="closeModal"
+                >
+                    Batal
+                </button>
+
+                <button 
+                    type="submit" name="simpan" class="btn-submit">
+                    Tambah
+                </button>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="editModal">
+
+    <div class="modal-content">
+
+        <h2>Edit Data Mobil</h2>
+
+        <form action="update_mobil.php" method="POST">
+
+            <input
+                type="hidden"
+                id="editId"
+                name="id_kendaraan">
+
+            <div class="form">
+
+                <label>Nama</label>
+                <input
+                    type="text"
+                    id="editNama"
+                    name="nama"
+                    required>
+
+                <label>Plat</label>
+                <input
+                    type="text"
+                    id="editPlat"
+                    name="plat"
+                    required>
+
+                <label>Tipe</label>
+                <input
+                    type="text"
+                    id="editTipe"
+                    name="tipe"
+                    required>
+
+                <label>Tahun</label>
+                <input
+                type="number"
+                id="editTahun"
+                name="tahun"
+                required>
+
+                <!-- TAMBAHAN -->
+                <label>No. Mesin</label>
+                <input
+                type="text"
+                id="editNoMesin"
+                name="no_mesin"
+                required>
+
+                <label>No. Rangka</label>
+                <input
+                type="text"
+                id="editNoRangka"
+                name="no_rangka"
+                required>
+
+                <label>Status</label>
+
+                <select
+                id="editStatus"
+                name="status">
+
+                <option value="Tersedia">
+                Tersedia
+                </option>
+
+                <option value="Dipinjam">
+                Dipinjam
+                </option>
+
+                <option value="Maintenance">
+                Maintenance
+                </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-batal"
+                    id="closeEdit">
+
+                    Batal
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+
+                    Simpan
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="popup" id="deletePopup">
+
+    <div class="delete-box">
+        <img src="images/hapus.png"class="delete-img">
+        <h2>Hapus Data Aset Mobil?</h2>
+        <p>Data akan dihapus permanen</p>
+
+        <div class="delete-buttons">
+            <button class="btn-batal-delete"id="cancelDelete">
                 Batal
             </button>
 
-            <button
-                type="submit"
-                class="btn-submit"
-                name="<?= $editMode ? 'update' : 'simpan' ?>"
-            >
-                <?= $editMode ? 'Update' : 'Tambah' ?>
-            </button>
-
+            <a
+                id="confirmDelete"
+                class="btn-hapus-delete">
+                Hapus
+            </a>
         </div>
-
-        <?php if($editMode): ?>
-            <input
-                type="hidden"
-                name="id_kendaraan"
-                value="<?= $editData['id_kendaraan'] ?>"
-            >
-        <?php endif; ?>
-
-    </form>
-
+    </div>
 </div>
+
 
 <div class="popup" id="logoutPopup">
     <div class="popup-content">
@@ -1234,11 +1346,354 @@ tr {
         </div>
     </div>
 </div>
-<script src="kelolamobil.js"></script>
-<?php if($editMode): ?>
 <script>
-document.getElementById('modalForm').style.display='flex';
+document.addEventListener("DOMContentLoaded",()=>{
+
+const modal =
+document.getElementById("modalForm");
+
+const editModal =
+document.getElementById("editModal");
+
+const openBtn =
+document.getElementById("openModal");
+
+const closeBtn =
+document.getElementById("closeModal");
+
+const closeEdit =
+document.getElementById("closeEdit");
+
+openBtn.onclick = ()=>{
+
+modal.style.display="flex";
+
+};
+
+closeBtn.onclick = ()=>{
+
+modal.style.display="none";
+
+};
+
+closeEdit.onclick = ()=>{
+
+editModal.style.display="none";
+
+};
+
+window.onclick = (e)=>{
+
+if(e.target===modal)
+modal.style.display="none";
+
+if(e.target===editModal)
+editModal.style.display="none";
+
+};
+
+// EDIT
+
+document
+.querySelectorAll(".editBtn")
+.forEach(btn=>{
+
+btn.onclick = ()=>{
+
+editModal.style.display="flex";
+
+document.getElementById("editId").value =
+btn.dataset.id;
+
+document.getElementById("editNama").value =
+btn.dataset.nama;
+
+document.getElementById("editPlat").value =
+btn.dataset.plat;
+
+document.getElementById("editTipe").value =
+btn.dataset.tipe;
+
+document.getElementById("editTahun").value =
+btn.dataset.tahun;
+
+document.getElementById("editNoMesin").value =
+btn.dataset.no_mesin;
+
+document.getElementById("editNoRangka").value =
+btn.dataset.no_rangka;
+
+const editStatus =
+document.getElementById("editStatus");
+
+editStatus.value =
+btn.dataset.status;
+
+editStatus.className =
+btn.dataset.status.toLowerCase();
+};
+
+});
+
+editStatus.addEventListener("change", function(){
+
+    this.className =
+    this.value.toLowerCase();
+
+});
+
+// DELETE
+
+const deletePopup = document.getElementById("deletePopup");
+const confirmDelete = document.getElementById("confirmDelete");
+const cancelDelete = document.getElementById("cancelDelete");
+
+document.querySelectorAll(".delete").forEach(btn => {
+
+    btn.addEventListener("click", function(e){
+
+        e.preventDefault();
+
+        const id = this.dataset.id;
+
+        confirmDelete.href =
+            "hapus_mobil.php?id=" + id;
+
+        deletePopup.style.display = "flex";
+    });
+
+});
+
+cancelDelete.addEventListener("click", () => {
+    deletePopup.style.display = "none";
+});
+
+// UPLOAD GAMBAR
+
+const uploadBox =
+document.getElementById("uploadBox");
+
+const fileInput2 =
+document.getElementById("fileInput");
+
+const previewImg =
+document.getElementById("previewImg");
+
+uploadBox.addEventListener("click", ()=>{
+
+    fileInput2.click();
+
+});
+
+fileInput2.addEventListener("change", function(){
+
+    const file = this.files[0];
+
+    if(!file) return;
+
+    if(file.size > 2 * 1024 * 1024){
+
+        alert("Ukuran gambar maksimal 2 MB");
+        this.value = "";
+        return;
+    }
+
+    const ext =
+    file.name.split(".").pop().toLowerCase();
+
+    if(!["jpg","jpeg","png"].includes(ext)){
+
+        alert("Format harus JPG, JPEG atau PNG");
+        this.value = "";
+        return;
+    }
+
+    const reader =
+    new FileReader();
+
+    reader.onload = function(e){
+
+        previewImg.src =
+        e.target.result;
+
+        previewImg.style.display =
+        "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+
+// DROPDOWN STATUS
+
+const selectedStatus =
+document.getElementById("selectedStatus");
+
+const statusOptions =
+document.getElementById("statusOptions");
+
+const statusInput =
+document.getElementById("statusInput");
+
+const arrow =
+selectedStatus.querySelector(".arrow");
+
+selectedStatus.addEventListener("click", ()=>{
+
+    statusOptions.style.display =
+    statusOptions.style.display === "block"
+    ? "none"
+    : "block";
+
+    arrow.classList.toggle("rotate");
+});
+
+document
+.querySelectorAll(".option")
+.forEach(option=>{
+
+    option.addEventListener("click", ()=>{
+
+        selectedStatus.childNodes[0].nodeValue =
+        option.textContent.trim() + " ";
+
+        statusInput.value =
+        option.textContent.trim();
+
+        selectedStatus.className =
+        "status-selected " +
+        option.classList[1];
+
+        statusOptions.style.display =
+        "none";
+
+        arrow.classList.remove("rotate");
+    });
+
+});
+
+
+// PAGINATION
+
+const rowsPerPage = 5;
+
+const rows =
+document.querySelectorAll("#tableBody tr");
+
+const pagination =
+document.getElementById("pagination");
+
+let currentPage = 1;
+
+function showPage(page){
+
+currentPage = page;
+
+rows.forEach((row,index)=>{
+
+const start =
+(page-1)*rowsPerPage;
+
+const end =
+start+rowsPerPage;
+
+row.style.display =
+(index>=start &&
+index<end)
+? ""
+: "none";
+
+});
+
+renderPagination();
+
+}
+
+function renderPagination(){
+
+const totalPages =
+Math.ceil(rows.length/rowsPerPage);
+
+pagination.innerHTML="";
+
+const prev =
+document.createElement("button");
+
+prev.innerHTML="‹";
+
+prev.disabled =
+currentPage===1;
+
+prev.onclick=
+()=>showPage(currentPage-1);
+
+pagination.appendChild(prev);
+
+for(let i=1;i<=totalPages;i++){
+
+const btn =
+document.createElement("button");
+
+btn.innerHTML=i;
+
+if(i===currentPage){
+
+btn.classList.add("active");
+
+}
+
+btn.onclick=
+()=>showPage(i);
+
+pagination.appendChild(btn);
+
+}
+
+const next =
+document.createElement("button");
+
+next.innerHTML="›";
+
+next.disabled =
+currentPage===totalPages;
+
+next.onclick=
+()=>showPage(currentPage+1);
+
+pagination.appendChild(next);
+
+}
+
+showPage(1);
+
+});
+
+// LOGOUT
+
+function openLogout(){
+
+document.getElementById(
+"logoutPopup"
+).style.display="flex";
+
+}
+
+function closeLogout(){
+
+document.getElementById(
+"logoutPopup"
+).style.display="none";
+
+}
+
+function logout(){
+
+window.location.href=
+"berandabeforelog.php";
+
+}
 </script>
-<?php endif; ?>
 </body>
 </html>

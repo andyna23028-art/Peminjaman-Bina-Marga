@@ -4,6 +4,123 @@ session_start();
 if(!isset($_SESSION['admin'])){
     header('Location: login.php');
 }
+require_once 'koneksi.php';
+// Total User
+$qUser = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM user
+");
+$totalUser = mysqli_fetch_assoc($qUser)['total'];
+
+
+// Total Mobil
+$qMobil = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Mobil'
+");
+$totalMobil = mysqli_fetch_assoc($qMobil)['total'];
+
+
+// Total Motor
+$qMotor = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Motor'
+");
+$totalMotor = mysqli_fetch_assoc($qMotor)['total'];
+
+
+// Total Ruangan
+$qRuang = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM ruangan
+");
+$totalRuang = mysqli_fetch_assoc($qRuang)['total'];
+
+
+// ============================
+// STATUS TERSEDIA
+// ============================
+
+$qMobilTersedia = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Mobil'
+AND status='Tersedia'
+");
+$mobilTersedia = mysqli_fetch_assoc($qMobilTersedia)['total'];
+
+$qMotorTersedia = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Motor'
+AND status='Tersedia'
+");
+$motorTersedia = mysqli_fetch_assoc($qMotorTersedia)['total'];
+
+$qRuangTersedia = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM ruangan
+WHERE status='Tersedia'
+");
+$ruangTersedia = mysqli_fetch_assoc($qRuangTersedia)['total'];
+
+
+// ============================
+// STATUS MAINTENANCE
+// ============================
+
+$qMobilMaintenance = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Mobil'
+AND status='Maintenance'
+");
+$mobilMaintenance = mysqli_fetch_assoc($qMobilMaintenance)['total'];
+
+$qMotorMaintenance = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Motor'
+AND status='Maintenance'
+");
+$motorMaintenance = mysqli_fetch_assoc($qMotorMaintenance)['total'];
+
+$qRuangMaintenance = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM ruangan
+WHERE status='Maintenance'
+");
+$ruangMaintenance = mysqli_fetch_assoc($qRuangMaintenance)['total'];
+
+
+// ============================
+// STATUS DIPINJAM
+// ============================
+
+$qMobilDipinjam = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Mobil'
+AND status='Dipinjam'
+");
+$mobilDipinjam = mysqli_fetch_assoc($qMobilDipinjam)['total'];
+
+$qMotorDipinjam = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM kendaraan
+WHERE kategori='Motor'
+AND status='Dipinjam'
+");
+$motorDipinjam = mysqli_fetch_assoc($qMotorDipinjam)['total'];
+
+$qRuangDipinjam = mysqli_query($conn,"
+SELECT COUNT(*) as total
+FROM ruangan
+WHERE status='Dipinjam'
+");
+$ruangDipinjam = mysqli_fetch_assoc($qRuangDipinjam)['total'];
 $currentPage = 'dashboard';
 ?>
 
@@ -551,7 +668,7 @@ body {
         <h4>Total Pengguna</h4>
 
         <div class="card-bottom">
-            <div class="number">40</div>
+            <div class="number"><?= $totalUser ?></div>
             <img src="images/hiasanputih.png" class="hiasan">
         </div>
     </div>
@@ -562,7 +679,7 @@ body {
         <h4>Total Mobil</h4>
 
         <div class="card-bottom">
-            <div class="number">40</div>
+            <div class="number"><?= $totalMobil ?></div>
             <img src="images/hiasanbiru.png" class="hiasan">
         </div>
     </div>
@@ -573,7 +690,7 @@ body {
         <h4>Total Motor</h4>
 
         <div class="card-bottom">
-            <div class="number">40</div>
+            <div class="number"><?= $totalMotor ?></div>
             <img src="images/hiasanbiru.png" class="hiasan">
         </div>
     </div>
@@ -584,7 +701,7 @@ body {
         <h4>Total Ruangan</h4>
 
         <div class="card-bottom">
-            <div class="number">40</div>
+            <div class="number"><?= $totalRuang ?></div>
             <img src="images/hiasanbiru.png" class="hiasan">
         </div>
     </div>
@@ -601,7 +718,7 @@ body {
         Kendaraan Mobil
     </div>
     <div class="bar-line"><div class="bar-fill"></div></div>
-    <span>40</span>
+    <span><?= $mobilTersedia ?></span>
 </div>
 
 <div class="bar">
@@ -610,7 +727,7 @@ body {
         Kendaraan Motor
     </div>
     <div class="bar-line"><div class="bar-fill"></div></div>
-    <span>40</span>
+    <span><?= $motorTersedia ?></span>
 </div>
 
 <div class="bar">
@@ -619,7 +736,7 @@ body {
         Ruangan
     </div>
     <div class="bar-line"><div class="bar-fill"></div></div>
-    <span>40</span>
+    <span><?= $ruangTersedia ?></span>
 </div>
     </div>
 
@@ -637,7 +754,7 @@ body {
                     <img src="images/totalmobil.png" class="icon-list">
                     Kendaraan Mobil
                 </div>
-                <span>40</span>
+                <span><?= $mobilMaintenance ?></span>
             </div>
 
             <div class="item">
@@ -645,7 +762,7 @@ body {
                     <img src="images/totalmotor.png" class="icon-list">
                     Kendaraan Motor
                 </div>
-                <span>40</span>
+                <span><?= $motorMaintenance ?></span>
             </div>
 
             <div class="item">
@@ -653,7 +770,7 @@ body {
                     <img src="images/totalruangan.png" class="icon-list">
                     Ruangan
                 </div>
-                <span>40</span>
+                <span><?= $ruangMaintenance ?></span>
             </div>
 
         </div>
@@ -670,7 +787,7 @@ body {
                     <img src="images/totalmobil.png" class="icon-list">
                     Kendaraan Mobil
                 </div>
-                <span>40</span>
+                <span><?= $mobilDipinjam ?></span>
             </div>
 
             <div class="item">
@@ -678,7 +795,7 @@ body {
                     <img src="images/totalmotor.png" class="icon-list">
                     Kendaraan Motor
                 </div>
-                <span>40</span>
+                <span><?= $motorDipinjam ?></span>
             </div>
 
             <div class="item">
@@ -686,7 +803,7 @@ body {
                     <img src="images/totalruangan.png" class="icon-list">
                     Ruangan
                 </div>
-                <span>40</span>
+                <span><?= $ruangDipinjam ?></span>
             </div>
 
         </div>

@@ -1,18 +1,18 @@
 <?php
-$mobil = $_GET['mobil'] ?? 'porsche';
+require_once 'koneksi.php';
 
-$data = [
-    "porsche" => ["nama" => "PORSCHE 911", "plat" => "L 333 NTO", "tahun" => "2025", "warna" => "Hitam", "tipe" => "Sport", "gambar" => "images/porsche.png", "status" => "tersedia"],
-    "reborn" => ["nama" => "INNOVA REBORN", "plat" => "L 000 GJY", "tahun" => "2022", "warna" => "Putih", "tipe" => "MPV", "gambar" => "images/reborn.png", "status" => "dipinjam"],
-    "denza" => ["nama" => "DENZA D9", "plat" => "L 188 BUD", "tahun" => "2024", "warna" => "Abu-abu", "tipe" => "Electric", "gambar" => "images/denza.png", "status" => "tersedia"],
-    "camry" => ["nama" => "CAMRY", "plat" => "L 333 NYE", "tahun" => "2021", "warna" => "Hitam", "tipe" => "Sedan", "gambar" => "images/camry.png", "status" => "maintenance"],
-    "gclass" => ["nama" => "G CLASS", "plat" => "L 123 YRH", "tahun" => "2023", "warna" => "Hitam", "tipe" => "SUV", "gambar" => "images/gclass.png", "status" => "tersedia"],
-    "ionic" => ["nama" => "IONIC 5", "plat" => "L 111 NTH", "tahun" => "2024", "warna" => "Putih", "tipe" => "Electric", "gambar" => "images/ionic.png", "status" => "tersedia"],
-    "zenix" => ["nama" => "ZENIX", "plat" => "L 333 SBI", "tahun" => "2023", "warna" => "Silver", "tipe" => "Hybrid", "gambar" => "images/zenix.png", "status" => "dipinjam"],
-    "audi" => ["nama" => "AUDI", "plat" => "L 444 RYY", "tahun" => "2022", "warna" => "Hitam", "tipe" => "Sedan", "gambar" => "images/audi.png", "status" => "maintenance"],
-    "sclass" => ["nama" => "S CLASS", "plat" => "L 333 KNG", "tahun" => "2023", "warna" => "Hitam", "tipe" => "Luxury", "gambar" => "images/sclass.png", "status" => "dipinjam"]
-];
-$m = $data[$mobil] ?? $data['porsche'];
+$id = $_GET['id'];
+
+$sql = "SELECT * FROM kendaraan
+        WHERE id_kendaraan='$id'";
+
+$query = mysqli_query($conn, $sql);
+
+$mobil = mysqli_fetch_assoc($query);
+
+if(!$mobil){
+    die("Data mobil tidak ditemukan");
+}
 ?>
 
 <!DOCTYPE html>
@@ -20,7 +20,7 @@ $m = $data[$mobil] ?? $data['porsche'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Mobil - <?= $m['nama'] ?></title>
+    <title>Detail Mobil</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -370,71 +370,127 @@ $m = $data[$mobil] ?? $data['porsche'];
 
     <div class="main-container">
         <div class="car-display">
-            <img src="<?= $m['gambar'] ?>" alt="Mobil">
-            <div class="car-name-box"><?= $m['nama'] ?></div>
+            <img src="<?= $mobil['gambar'] ?>" alt="Mobil">
+            <div class="car-name-box"><?= $mobil['nama'] ?></div>
         </div>
         <div class="details-section">
             <h1>Deskripsi & Spesifikasi</h1>
-            <div class="specs-box">
-                <div class="spec-row"><span class="spec-label">Nama</span> <span><?= $m['nama'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Plat</span> <span><?= $m['plat'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Tipe</span> <span><?= $m['tipe'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Tahun</span> <span><?= $m['tahun'] ?></span></div>
-            </div>
-            <button class="btn-pinjam" onclick="handleAction('<?= $m['status'] ?>')">
-    Pinjam Sekarang
-</button>
+           <div class="specs-box">
+
+    <div class="spec-row">
+        <span class="spec-label">Nama</span>
+        <span><?= $mobil['nama'] ?></span>
+    </div>
+
+    <div class="spec-row">
+        <span class="spec-label">Plat</span>
+        <span><?= $mobil['plat'] ?></span>
+    </div>
+
+    <div class="spec-row">
+        <span class="spec-label">Tipe</span>
+        <span><?= $mobil['tipe'] ?></span>
+    </div>
+
+    <div class="spec-row">
+        <span class="spec-label">Tahun</span>
+        <span><?= $mobil['tahun'] ?></span>
+    </div>
+
+    <!-- TAMBAHAN -->
+
+    <div class="spec-row">
+        <span class="spec-label">No. Mesin</span>
+        <span><?= $mobil['no_mesin'] ?></span>
+    </div>
+
+    <div class="spec-row">
+        <span class="spec-label">No. Rangka</span>
+        <span><?= $mobil['no_rangka'] ?></span>
+    </div>
+
+</div>
+            <button class="btn-pinjam"onclick="handleAction('<?= strtolower($mobil['status']) ?>')">
+                Pinjam Sekarang
+            </button>
         </div>
     </div>
 
     <div id="overlay">
         <div class="modal">
-            <h2>Tentukan Tanggal Peminjaman</h2>
-            <div class="line-gradient"></div>
+            <form action="proses_peminjaman.php" method="POST">
 
-            <div class="calendars-grid">
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Mulai</p>
-                    <div class="mini-cal" id="cal-start">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('start', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('start', 1)">❯</span>
+                <input type="hidden"
+                    name="id_aset"
+                    value="<?= $mobil['id_kendaraan'] ?>">
+
+                <input type="hidden"
+                    name="jenis_aset"
+                    value="Mobil">
+
+                <input type="hidden"
+                    name="tanggal_mulai"
+                    id="tanggalMulai">
+
+                <input type="hidden"
+                    name="tanggal_selesai"
+                    id="tanggalSelesai">
+
+                <h2>Tentukan Tanggal Peminjaman</h2>
+                <div class="line-gradient"></div>
+
+                <div class="calendars-grid">
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Mulai</p>
+                        <div class="mini-cal" id="cal-start">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('start', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('start', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
                         </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
+                    </div>
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Selesai</p>
+                        <div class="mini-cal" id="cal-end">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('end', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('end', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Selesai</p>
-                    <div class="mini-cal" id="cal-end">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('end', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('end', 1)">❯</span>
-                        </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
-                    </div>
+
+                <div class="time-header">
+                    <h3>Waktu Mulai</h3>
+                    <div class="time-line"></div>
                 </div>
-            </div>
+                <select class="time-select" name="jam_mulai" required>
+                    <option value="">Pilih waktu yang tersedia</option>
+                    <option value="09:00">09.00</option>
+                    <option value="10:00">10.00</option>
+                    <option value="13:00">13.00</option>
+                    <option value="14:00">14.00</option>
+                </select>
+                
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn-batal"
+                            onclick="toggleModal(false)">
+                        Batal
+                    </button>
 
-            <div class="time-header">
-                <h3>Waktu Mulai</h3>
-                <div class="time-line"></div>
-            </div>
-           <select class="time-select">
-    <option selected disabled>Pilih waktu yang tersedia</option>
-    <option value="09:00">09.00</option>
-    <option value="10:00">10.00</option>
-    <option value="13:00">13.00</option>
-    <option value="14:00">14.00</option>
-</select>
-
-            <div class="modal-footer">
-                <button class="btn-batal" onclick="toggleModal(false)">Batal</button>
-                <button class="btn-ajukan" onclick="showSuccess()">Ajukan</button>
-            </div>
+                    <button type="submit"
+                            class="btn-ajukan">
+                        Ajukan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -482,7 +538,14 @@ $m = $data[$mobil] ?? $data['porsche'];
         </div>
     </div>
 </div>
-
+    <?php if(isset($_GET['success'])): ?>
+    <script>
+    window.onload = function(){
+        document.getElementById("successPopup")
+                .classList.add("active");
+    };
+    </script>
+    <?php endif; ?>
     <script src="detailmobil.js"></script>
 </body>
 </html>

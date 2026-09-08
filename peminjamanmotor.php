@@ -1,3 +1,13 @@
+<?php
+require_once 'koneksi.php';
+
+$sql = "SELECT * FROM kendaraan
+        WHERE kategori='Motor'
+        ORDER BY id_kendaraan DESC";
+
+$query = mysqli_query($conn, $sql);
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -251,9 +261,9 @@ body {
         <h1 class="fade-up">Ajukan Peminjaman Motor Dinas<br>dengan Mudah dan Cepat</h1>
 
         <a href="/ProjectBinaMarga/berandaafterlog.php#kategori" class="back-btn fade-up">
-    <img src="images/kembali.png">
-    <span>Kembali</span>
-</a>
+            <img src="images/kembali.png">
+            <span>Kembali</span>
+        </a>
     </div>
 
     <div class="line"></div>
@@ -262,214 +272,69 @@ body {
 
 <div class="container">
 
-   
     <div class="filter fade-up">
-    <button data-filter="tersedia">Tersedia</button>
-    <button data-filter="dipinjam">Dipinjam</button>
-    <button data-filter="maintenance">Maintenance</button>
-</div>
+        <button data-filter="tersedia">Tersedia</button>
+        <button data-filter="dipinjam">Dipinjam</button>
+        <button data-filter="maintenance">Maintenance</button>
+    </div>
 
     
     <div class="grid">
+        <?php while($motor = mysqli_fetch_assoc($query)): ?>
 
-<a href="detailmotor.php?motor=supra" class="card fade-up " data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/supra.png">
-    </div>
-    <div class="card-info">
-        <h3>SUPRA 125</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 276 TYN</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2020</span>
-        </div>
-        <div class="status">
-    <img src="images/dipinjam.png">
-    <span style="color:red;">Dipinjam</span>
-</div>
-    </div>
-</a>
+            <a href="detailmotor.php?id=<?= $motor['id_kendaraan'] ?>"
+            class="card fade-up"
+            data-status="<?= strtolower($motor['status']) ?>">
 
+                <div class="card-img">
+                    <img src="<?= $motor['gambar'] ?>">
+                </div>
 
-<a href="detailmotor.php?motor=vario" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/vario.png">
-    </div>
-    <div class="card-info">
-        <h3>VARIO 120</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 736 NDU</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2019</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                <div class="card-info">
 
+                    <h3><?= htmlspecialchars($motor['nama']) ?></h3>
 
-<a href="detailmotor.php?motor=nmax" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/nmax.png">
-    </div>
-    <div class="card-info">
-        <h3>NMAX</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 191 BNA</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                    <div class="meta">
+                        <img src="images/plat.png">
+                        <span><?= htmlspecialchars($motor['plat']) ?></span>
+                    </div>
 
+                    <div class="meta">
+                        <img src="images/logo tahun.png">
+                        <span><?= $motor['tahun'] ?></span>
+                    </div>
 
-<a href="detailmotor.php?motor=pcx" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/pcx.png">
-    </div>
-    <div class="card-info">
-        <h3>PCX 160</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 837 NHD</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                    <div class="status">
 
+                        <?php
+                        $status = strtolower($motor['status']);
 
-<a href="detailmotor.php?motor=beat" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/beat.png">
-    </div>
-    <div class="card-info">
-        <h3>BEAT EsP</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 837 KSD</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                        if($status == 'tersedia'){
+                            $icon = 'tersedia.png';
+                            $color = '#2ecc71';
+                        }elseif($status == 'dipinjam'){
+                            $icon = 'dipinjam.png';
+                            $color = 'red';
+                        }else{
+                            $icon = 'maintenance.png';
+                            $color = '#071D63';
+                        }
+                        ?>
 
+                        <img src="images/<?= $icon ?>">
 
-<a href="detailmotor.php?motor=scoopy" class="card fade-up" data-status="maintenance">
-    <div class="card-img">
-        <img src="images/scoopy.png">
-    </div>
-    <div class="card-info">
-        <h3>SCOOPY</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 326 KSJ</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/maintenance.png">
-            <span style="color:#071D63;">Maintenance</span>
-        </div>
-    </div>
-</a>
+                        <span style="color:<?= $color ?>">
+                            <?= $motor['status'] ?>
+                        </span>
 
+                    </div>
 
-<a href="detailmotor.php?motor=verza" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/verza.png">
-    </div>
-    <div class="card-info">
-        <h3>VERZA</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 539 YDB</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                </div>
 
+            </a>
 
-<a href="detailmotor.php?motor=cb" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/cb150r.png">
+        <?php endwhile; ?>
     </div>
-    <div class="card-info">
-        <h3>CB 150 R</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 736 NXU</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
-
-
-<a href="detailmotor.php?motor=vixion" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/vixion.png">
-    </div>
-    <div class="card-info">
-        <h3>VIXION</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 983 NMJ</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
-
-</div>
 </div>
 <script src="peminjamanmotor.js"></script>
 

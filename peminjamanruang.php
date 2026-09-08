@@ -1,3 +1,12 @@
+<?php
+require_once 'koneksi.php';
+
+$sql = "SELECT * FROM ruangan
+        ORDER BY last_edit DESC, id DESC";
+
+$query = mysqli_query($conn, $sql);
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -252,9 +261,9 @@ body {
         <h1 class="fade-up">Ajukan Peminjaman Ruang Dinas<br>dengan Mudah dan Cepat</h1>
 
         <a href="/ProjectBinaMarga/berandaafterlog.php#kategori" class="back-btn fade-up">
-    <img src="images/kembali.png">
-    <span>Kembali</span>
-</a>
+            <img src="images/kembali.png">
+            <span>Kembali</span>
+        </a>
     </div>
 
     <div class="line"></div>
@@ -263,214 +272,69 @@ body {
 
 <div class="container">
 
-    
     <div class="filter fade-up">
-    <button data-filter="tersedia">Tersedia</button>
-    <button data-filter="dipinjam">Dipinjam</button>
-    <button data-filter="maintenance">Maintenance</button>
-</div>
+        <button data-filter="tersedia">Tersedia</button>
+        <button data-filter="dipinjam">Dipinjam</button>
+        <button data-filter="maintenance">Maintenance</button>
+    </div>
 
-   
+    
     <div class="grid">
+        <?php while($ruangan = mysqli_fetch_assoc($query)): ?>
 
-<a href="detailruang.php?ruang=rapatb" class="card fade-up " data-status="tersedia">
-    <div class="card-img">
-        <img src="images/rapatb.png">
-    </div>
-    <div class="card-info">
-        <h3>R. RAPAT B</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>B.2.130.115</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>40 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+            <a href="detailruang.php?id=<?= $ruangan['id'] ?>"
+            class="card fade-up"
+            data-status="<?= strtolower($ruangan['status']) ?>">
 
+                <div class="card-img">
+                    <img src="<?= $ruangan['gambar'] ?>">
+                </div>
 
-<a href="detailruang.php?ruang=rapatk" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/rapatk.png">
-    </div>
-    <div class="card-info">
-        <h3>R. RAPAT K</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>A.2.350.225</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>15 Orang</span>
-        </div>
-         <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                <div class="card-info">
 
+                    <h3><?= htmlspecialchars($ruangan['nama']) ?></h3>
 
-<a href="detailruang.php?ruang=diskusi" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/diskusi.png">
-    </div>
-    <div class="card-info">
-        <h3>R. DISKUSI</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>B.3.131.116</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>10 Orang</span>
-        </div>
-         <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                    <div class="meta">
+                        <img src="images/no.png">
+                        <span><?= htmlspecialchars($ruangan['kode']) ?></span>
+                    </div>
 
+                    <div class="meta">
+                        <img src="images/user.png">
+                        <span><?= $ruangan['kapasitas'] ?></span>
+                    </div>
 
-<a href="detailruang.php?ruang=avi" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/avi.png">
-    </div>
-    <div class="card-info">
-        <h3>R. AVI</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>C.1.339.467</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>100 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                    <div class="status">
 
+                        <?php
+                        $status = strtolower($ruangan['status']);
 
-<a href="detailruang.php?ruang=web" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/web.png">
-    </div>
-    <div class="card-info">
-        <h3>R. WEB</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>C.2.755.911</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>50 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                        if($status == 'tersedia'){
+                            $icon = 'tersedia.png';
+                            $color = '#2ecc71';
+                        }elseif($status == 'dipinjam'){
+                            $icon = 'dipinjam.png';
+                            $color = 'red';
+                        }else{
+                            $icon = 'maintenance.png';
+                            $color = '#071D63';
+                        }
+                        ?>
 
+                        <img src="images/<?= $icon ?>">
 
-<a href="detailruang.php?ruang=pandhawa" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/pandhawa.png">
-    </div>
-    <div class="card-info">
-        <h3>PANDHAWA</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>A.3.550.458</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>350 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                        <span style="color:<?= $color ?>">
+                            <?= $ruangan['status'] ?>
+                        </span>
 
+                    </div>
 
-<a href="detailruang.php?ruang=tennis" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/tennis.png">
-    </div>
-    <div class="card-info">
-        <h3>LAP. TENNIS</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>B.1.120.111</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>4 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                </div>
 
+            </a>
 
-<a href="detailruang.php?ruang=lab" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/lab.png">
+        <?php endwhile; ?>
     </div>
-    <div class="card-info">
-        <h3>LAB</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>A.1.250.222</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>10 Orang</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
-
-
-<a href="detailruang.php?ruang=aula" class="card fade-up" data-status="maintenance">
-    <div class="card-img">
-        <img src="images/aula.png">
-    </div>
-    <div class="card-info">
-        <h3>AULA</h3>
-        <div class="meta">
-            <img src="images/no.png">
-            <span>C.3.321.756</span>
-        </div>
-        <div class="meta">
-            <img src="images/user.png">
-            <span>300 Orang</span>
-        </div>
-        <div class="status">
-    <img src="images/maintenance.png">
-    <span style="color:#071D63;">Maintenance</span>
-</div>
-    </div>
-</a>
-
-</div>
 </div>
 <script src="peminjamanruang.js"></script>
 

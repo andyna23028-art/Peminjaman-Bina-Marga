@@ -10,12 +10,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.querySelector(".table-body");
     const pagination = document.getElementById("pagination");
 
+    // ===== IMPORT =====
+    const popupImport = document.getElementById("popupImport");
+    const btnBatalImport = document.getElementById("btnBatalImport");
+    const btnImport = document.getElementById("btnImport");
+    const btnImportPopup = document.querySelector(".btn-import");
+    // ==================
+
     let selectedRow = null;
+    let selectedId = null;
 
     let currentPage = 1;
     const rowsPerPage = 5;
 
-    
     function getRows() {
 
         return Array.from(
@@ -23,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    
     function animateRowsFadeUp() {
 
         const rows = getRows();
@@ -34,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 row.style.animation = "none";
 
-                
                 row.offsetHeight;
 
                 row.style.opacity = "0";
@@ -48,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    
     function showEmptyState() {
 
         const rows = getRows();
@@ -81,7 +85,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    
     function showPage(page) {
 
         const rows = getRows();
@@ -124,11 +127,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showEmptyState();
 
-        
         animateRowsFadeUp();
     }
 
-    
     function renderPagination() {
 
         const rows = getRows();
@@ -143,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         pagination.innerHTML = "";
 
-        
         const prev = document.createElement("button");
 
         prev.innerHTML = "‹";
@@ -160,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         pagination.appendChild(prev);
 
-        
         for (let i = 1; i <= totalPages; i++) {
 
             const btn = document.createElement("button");
@@ -183,7 +182,6 @@ document.addEventListener("DOMContentLoaded", function () {
             pagination.appendChild(btn);
         }
 
-        
         const next = document.createElement("button");
 
         next.innerHTML = "›";
@@ -202,72 +200,136 @@ document.addEventListener("DOMContentLoaded", function () {
         pagination.appendChild(next);
     }
 
-    
     function bindDelete() {
 
         document
-            .querySelectorAll(".delete img")
+            .querySelectorAll(".btn-delete")
             .forEach(btn => {
 
                 btn.onclick = function () {
 
-                    selectedRow =
-                        this.closest(".row");
+                    selectedId = this.dataset.id;
+
+                    console.log(selectedId);
 
                     popup.style.display = "flex";
                 };
+
             });
     }
 
     bindDelete();
 
-    
+    // ===== IMPORT POPUP =====
+
+if (btnImportPopup) {
+
+    btnImportPopup.addEventListener("click", () => {
+
+        popupImport.style.display = "flex";
+    });
+}
+
+if (btnBatalImport) {
+
+    btnBatalImport.addEventListener("click", () => {
+
+        popupImport.style.display = "none";
+    });
+}
+
+if (btnImport) {
+
+    btnImport.addEventListener("click", () => {
+
+        const file =
+            document.getElementById("fileImport").files[0];
+
+        if (!file) {
+
+            alert("Silakan pilih file Excel terlebih dahulu");
+            return;
+        }
+
+        alert("Data berhasil diimport");
+
+        document.getElementById("fileImport").value = "";
+
+        popupImport.style.display = "none";
+    });
+}
+
+if (popupImport) {
+
+    popupImport.addEventListener("click", function (e) {
+
+        if (e.target === popupImport) {
+
+            popupImport.style.display = "none";
+        }
+    });
+}
+// ===== UPLOAD EXCEL =====
+
+const uploadExcelBox =
+    document.getElementById("uploadExcelBox");
+
+const fileImport =
+    document.getElementById("fileImport");
+
+const fileNameExcel =
+    document.getElementById("fileNameExcel");
+
+if(uploadExcelBox){
+
+    uploadExcelBox.addEventListener("click",()=>{
+
+        fileImport.click();
+
+    });
+
+    fileImport.addEventListener("change",function(){
+
+        if(this.files.length){
+
+            fileNameExcel.innerText =
+                this.files[0].name;
+        }
+
+    });
+
+}
+
+// ========================
+    // ========================
+
     btnBatal.addEventListener("click", () => {
 
         popup.style.display = "none";
 
-        selectedRow = null;
+        selectedId = null;
     });
 
-    
     btnHapus.addEventListener("click", () => {
 
-        if (selectedRow) {
+        if (selectedId) {
 
-            selectedRow.remove();
+            window.location.href =
+                "hapus_user.php?hapus=" + selectedId;
         }
 
-        popup.style.display = "none";
-
-        selectedRow = null;
-
-        updateNumbering();
-
-        const rows = getRows();
-
-        const totalPages =
-            Math.ceil(rows.length / rowsPerPage) || 1;
-
-        if (currentPage > totalPages) {
-
-            currentPage = totalPages;
-        }
-
-        showPage(currentPage);
     });
 
-    
     popup.addEventListener("click", function (e) {
 
         if (e.target === popup) {
 
             popup.style.display = "none";
 
-            selectedRow = null;
+            selectedId = null;
         }
     });
 
-    
     function updateNumbering() {
 
         const rows = getRows();
@@ -279,13 +341,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    
     logoutBtn.addEventListener("click", () => {
 
         logoutPopup.style.display = "flex";
     });
 
-    
     logoutPopup.addEventListener("click", function (e) {
 
         if (e.target === logoutPopup) {
@@ -294,20 +354,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    
     window.closeLogout = function () {
 
         logoutPopup.style.display = "none";
     };
 
-    
     window.logout = function () {
 
         window.location.href =
             "berandabeforelog.php";
     };
 
-    
     showPage(currentPage);
 
 });

@@ -1,19 +1,18 @@
 <?php
-$motor = $_GET['motor'] ?? 'vario';
+require_once 'koneksi.php';
 
-$data = [
-    "supra" => ["nama"=>"HONDA SUPRA 125","plat"=>"L 276 TYN","tahun"=>"2020","warna"=>"Hitam","tipe"=>"Bebek","kapasitas"=>"2 Orang","gambar"=>"images/supra.png","status"=>"dipinjam"],
-    "vario" => ["nama"=>"HONDA VARIO 120","plat"=>"L 736 NDU","tahun"=>"2019","warna"=>"Hitam","tipe"=>"Matic","kapasitas"=>"2 Orang","gambar"=>"images/vario.png","status"=>"tersedia"],
-    "nmax" => ["nama"=>"YAMAHA NMAX","plat"=>"L 191 BNA","tahun"=>"2025","warna"=>"Biru","tipe"=>"Matic","kapasitas"=>"2 Orang","gambar"=>"images/nmax.png","status"=>"tersedia"],
-    "pcx" => ["nama"=>"HONDA PCX 160","plat"=>"L 837 NHD","tahun"=>"2025","warna"=>"Hitam","tipe"=>"Matic","kapasitas"=>"2 Orang","gambar"=>"images/pcx.png","status"=>"tersedia"],
-    "beat" => ["nama"=>"HONDA BEAT ESP","plat"=>"L 837 KSD","tahun"=>"2025","warna"=>"Biru","tipe"=>"Matic","kapasitas"=>"2 Orang","gambar"=>"images/beat.png","status"=>"tersedia"],
-    "scoopy" => ["nama"=>"HONDA SCOOPY","plat"=>"L 326 KSJ","tahun"=>"2025","warna"=>"Hitam","tipe"=>"Matic","kapasitas"=>"2 Orang","gambar"=>"images/scoopy.png","status"=>"maintenance"],
-    "verza" => ["nama"=>"HONDA VERZA","plat"=>"L 539 YDB","tahun"=>"2025","warna"=>"Merah","tipe"=>"Sport","kapasitas"=>"2 Orang","gambar"=>"images/verza.png","status"=>"dipinjam"],
-    "cb" => ["nama"=>"HONDA CB150R","plat"=>"L 736 NXU","tahun"=>"2025","warna"=>"Hitam","tipe"=>"Sport","kapasitas"=>"2 Orang","gambar"=>"images/cb150r.png","status"=>"tersedia"],
-    "vixion" => ["nama"=>"YAMAHA VIXION","plat"=>"L 983 NMJ","tahun"=>"2025","warna"=>"Hitam","tipe"=>"Sport","kapasitas"=>"2 Orang","gambar"=>"images/vixion.png","status"=>"tersedia"]
-];
+$id = $_GET['id'];
 
-$m = $data[$motor] ?? $data['vario'];
+$sql = "SELECT * FROM kendaraan
+        WHERE id_kendaraan='$id'";
+
+$query = mysqli_query($conn, $sql);
+
+$motor = mysqli_fetch_assoc($query);
+
+if(!$motor){
+    die("Data motor tidak ditemukan");
+}
 ?>
 
 <!DOCTYPE html>
@@ -21,7 +20,7 @@ $m = $data[$motor] ?? $data['vario'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Motor - <?= $m['nama'] ?></title>
+    <title>Detail Mobil</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,8 +55,8 @@ $m = $data[$motor] ?? $data['vario'];
 }
 
 .top-item.social img {
-    width: 20px;      
-    height: 20px;    
+    width: 20px;     
+    height: 20px;   
     object-fit: contain;
     opacity: 0.85;
     transition: 0.3s ease;
@@ -77,6 +76,8 @@ $m = $data[$motor] ?? $data['vario'];
         .back-link img { width: 22px; margin-right: 8px; }
 
 
+
+       
         .main-container { display: flex; padding: 0 60px 60px; align-items: flex-start; justify-content: space-between; }
         .car-display { width: 55%; text-align: center; }
         .car-display img { width: 100%; max-width: 600px; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2)); }
@@ -91,7 +92,7 @@ $m = $data[$motor] ?? $data['vario'];
         .btn-pinjam { width: 100%; background: #1a2c6b; color: #fff; border: none; padding: 18px; border-radius: 12px; font-weight: 700; font-size: 20px; margin-top: 25px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-pinjam:hover { background: #253d8c; transform: translateY(-3px); }
 
-     
+       
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         #overlay.active { display: flex; }
 
@@ -263,6 +264,7 @@ $m = $data[$motor] ?? $data['vario'];
     display: flex;
 }
 
+
 .maintenance-box, .dipinjam-box {
     background: #f2f2f2;
     width: 500px;
@@ -323,7 +325,20 @@ $m = $data[$motor] ?? $data['vario'];
     color: #1a2c6b;
     font-weight: bold;
 }
+.spec-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    padding:10px 0;
+    border-bottom:1px solid #f0f0f0;
+}
 
+.spec-label{
+    font-weight:700;
+    min-width:120px;
+    flex-shrink:0;
+}
 
     </style>
 </head>
@@ -368,71 +383,130 @@ $m = $data[$motor] ?? $data['vario'];
 
     <div class="main-container">
         <div class="car-display">
-            <img src="<?= $m['gambar'] ?>" alt="Motor">
-            <div class="car-name-box"><?= $m['nama'] ?></div>
+            <img src="<?= $motor['gambar'] ?>" alt="Motor">
+            <div class="car-name-box"><?= $motor['nama'] ?></div>
         </div>
         <div class="details-section">
-            <h1>Deskripsi & Spesifikasi</h1>
-            <div class="specs-box">
-                <div class="spec-row"><span class="spec-label">Nama</span> <span><?= $m['nama'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Plat</span> <span><?= $m['plat'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Tipe</span> <span><?= $m['tipe'] ?></span></div>
-                <div class="spec-row"><span class="spec-label">Tahun</span> <span><?= $m['tahun'] ?></span></div>
-            </div>
-            <button class="btn-pinjam" onclick="handleAction('<?= $m['status'] ?>')">
-    Pinjam Sekarang
-</button>
+
+    <h1>Deskripsi & Spesifikasi</h1>
+
+    <div class="specs-box">
+
+        <div class="spec-row">
+            <span class="spec-label">Nama</span>
+            <span><?= $motor['nama'] ?></span>
         </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Plat</span>
+            <span><?= $motor['plat'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Tipe</span>
+            <span><?= $motor['tipe'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Tahun</span>
+            <span><?= $motor['tahun'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">No. Mesin</span>
+            <span><?= $motor['no_mesin'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">No. Rangka</span>
+            <span><?= $motor['no_rangka'] ?></span>
+        </div>
+
     </div>
+
+    <button class="btn-pinjam"
+            onclick="handleAction('<?= strtolower($motor['status']) ?>')">
+        Pinjam Sekarang
+    </button>
+
+</div>
+           
 
     <div id="overlay">
         <div class="modal">
-            <h2>Tentukan Tanggal Peminjaman</h2>
-            <div class="line-gradient"></div>
+            <form action="proses_peminjaman.php" method="POST">
 
-            <div class="calendars-grid">
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Mulai</p>
-                    <div class="mini-cal" id="cal-start">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('start', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('start', 1)">❯</span>
+                <input type="hidden"
+                    name="id_aset"
+                    value="<?= $motor['id_kendaraan'] ?>">
+
+                <input type="hidden"
+                    name="jenis_aset"
+                    value="Motor">
+
+                <input type="hidden"
+                    name="tanggal_mulai"
+                    id="tanggalMulai">
+
+                <input type="hidden"
+                    name="tanggal_selesai"
+                    id="tanggalSelesai">
+
+                <h2>Tentukan Tanggal Peminjaman</h2>
+                <div class="line-gradient"></div>
+
+                <div class="calendars-grid">
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Mulai</p>
+                        <div class="mini-cal" id="cal-start">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('start', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('start', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
                         </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
+                    </div>
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Selesai</p>
+                        <div class="mini-cal" id="cal-end">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('end', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('end', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Selesai</p>
-                    <div class="mini-cal" id="cal-end">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('end', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('end', 1)">❯</span>
-                        </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
-                    </div>
+
+                <div class="time-header">
+                    <h3>Waktu Mulai</h3>
+                    <div class="time-line"></div>
                 </div>
-            </div>
+                <select class="time-select" name="jam_mulai" required>
+                    <option value="">Pilih waktu yang tersedia</option>
+                    <option value="09:00">09.00</option>
+                    <option value="10:00">10.00</option>
+                    <option value="13:00">13.00</option>
+                    <option value="14:00">14.00</option>
+                </select>
+                
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn-batal"
+                            onclick="toggleModal(false)">
+                        Batal
+                    </button>
 
-            <div class="time-header">
-                <h3>Waktu Mulai</h3>
-                <div class="time-line"></div>
-            </div>
-           <select class="time-select">
-    <option selected disabled>Pilih waktu yang tersedia</option>
-    <option value="09:00">09.00</option>
-    <option value="10:00">10.00</option>
-    <option value="13:00">13.00</option>
-    <option value="14:00">14.00</option>
-</select>
-
-            <div class="modal-footer">
-                <button class="btn-batal" onclick="toggleModal(false)">Batal</button>
-                <button class="btn-ajukan" onclick="showSuccess()">Ajukan</button>
-            </div>
+                    <button type="submit"
+                            class="btn-ajukan">
+                        Ajukan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -480,7 +554,220 @@ $m = $data[$motor] ?? $data['vario'];
         </div>
     </div>
 </div>
+    <?php if(isset($_GET['success'])): ?>
+    <script>
+    window.onload = function(){
+        document.getElementById("successPopup")
+                .classList.add("active");
+    };
+    </script>
+    <?php endif; ?>
+    <script>
+    let dateStart = new Date();
+    let dateEnd = new Date();
 
-    <script src="detailmotor.js"></script>
+    let tanggalMulaiDipilih = "";
+    let tanggalSelesaiDipilih = "";
+
+    const monthNames = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+    ];
+
+    // =====================
+    // MODAL
+    // =====================
+
+    function toggleModal(show) {
+    const overlay = document.getElementById("overlay");
+
+    if (!overlay) return;
+
+    overlay.classList.toggle("active", show);
+
+    document.body.style.overflow = show ? "hidden" : "auto";
+
+    if (show) {
+        renderCalendar("start", dateStart);
+        renderCalendar("end", dateEnd);
+    }
+    }
+
+    // =====================
+    // CALENDAR
+    // =====================
+
+    function renderCalendar(type, dateObj) {
+    const container = document.querySelector(`#cal-${type}`);
+
+    if (!container) return;
+
+    const grid = container.querySelector(".cal-dates");
+
+    const monthLabel = container.querySelector(".month-name");
+
+    const year = dateObj.getFullYear();
+
+    const month = dateObj.getMonth();
+
+    monthLabel.innerText = `${monthNames[month]} ${year}`;
+
+    grid.innerHTML = "";
+
+    const firstDay = new Date(year, month, 1).getDay();
+
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+        let div = document.createElement("div");
+
+        div.className = "empty";
+
+        grid.appendChild(div);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+        let div = document.createElement("div");
+
+        div.innerText = d;
+
+        div.onclick = function () {
+        container
+            .querySelectorAll(".cal-dates div")
+            .forEach((el) => el.classList.remove("selected"));
+
+        div.classList.add("selected");
+
+        let hari = String(d).padStart(2, "0");
+
+        let bulan = String(month + 1).padStart(2, "0");
+
+        let tanggal = `${year}-${bulan}-${hari}`;
+
+        if (type === "start") {
+            tanggalMulaiDipilih = tanggal;
+
+            document.getElementById("tanggalMulai").value = tanggal;
+        } else {
+            tanggalSelesaiDipilih = tanggal;
+
+            document.getElementById("tanggalSelesai").value = tanggal;
+        }
+        };
+
+        grid.appendChild(div);
+    }
+    }
+
+    // =====================
+    // GANTI BULAN
+    // =====================
+
+    function changeMonth(type, val) {
+    if (type === "start") {
+        dateStart.setMonth(dateStart.getMonth() + val);
+
+        renderCalendar("start", dateStart);
+    } else {
+        dateEnd.setMonth(dateEnd.getMonth() + val);
+
+        renderCalendar("end", dateEnd);
+    }
+    }
+
+    // =====================
+    // STATUS ASET
+    // =====================
+
+    function handleAction(status) {
+    status = status.toLowerCase();
+
+    if (status === "tersedia") {
+        toggleModal(true);
+    } else if (status === "dipinjam") {
+        document.getElementById("popupDipinjam").classList.add("active");
+    } else if (status === "maintenance") {
+        document.getElementById("maintenancePopup").classList.add("active");
+    }
+    }
+
+    // =====================
+    // CLOSE POPUP
+    // =====================
+
+    function closeDipinjam() {
+    document.getElementById("popupDipinjam").classList.remove("active");
+    }
+
+    function closeMaintenance() {
+    document.getElementById("maintenancePopup").classList.remove("active");
+    }
+
+    // =====================
+    // KLIK AREA GELAP
+    // =====================
+
+    window.onclick = function (event) {
+    const overlay = document.getElementById("overlay");
+
+    const dipinjam = document.getElementById("popupDipinjam");
+
+    const maintenance = document.getElementById("maintenancePopup");
+
+    if (event.target === overlay) {
+        toggleModal(false);
+    }
+
+    if (event.target === dipinjam) {
+        closeDipinjam();
+    }
+
+    if (event.target === maintenance) {
+        closeMaintenance();
+    }
+    };
+
+    // =====================
+    // VALIDASI FORM
+    // =====================
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#overlay form");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+        const tglMulai = document.getElementById("tanggalMulai").value;
+
+        const tglSelesai = document.getElementById("tanggalSelesai").value;
+
+        if (tglMulai === "" || tglSelesai === "") {
+            alert("Pilih tanggal mulai dan tanggal selesai terlebih dahulu");
+
+            e.preventDefault();
+
+            return;
+        }
+
+        if (tglSelesai < tglMulai) {
+            alert("Tanggal selesai tidak boleh lebih kecil dari tanggal mulai");
+
+            e.preventDefault();
+
+            return;
+        }
+        });
+    }
+    });
+</script>
 </body>
 </html>

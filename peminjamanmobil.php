@@ -1,3 +1,13 @@
+<?php
+require_once 'koneksi.php';
+
+$sql = "SELECT * FROM kendaraan
+        WHERE kategori='Mobil'
+        ORDER BY id_kendaraan DESC";
+
+$query = mysqli_query($conn, $sql);
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -277,206 +287,64 @@ body {
 </div>
 
     
-    <div class="grid">
+   <div class="grid">
 
-<a href="detailmobil.php?mobil=porsche" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/porsche.png">
-    </div>
-    <div class="card-info">
-        <h3>PORSCHE</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 333 NTO</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2025</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+        <?php while($mobil = mysqli_fetch_assoc($query)): ?>
 
+            <a href="detailmobil.php?id=<?= $mobil['id_kendaraan'] ?>"
+            class="card fade-up"
+            data-status="<?= strtolower($mobil['status']) ?>">
 
-<a href="detailmobil.php?mobil=reborn" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/reborn.png">
-    </div>
-    <div class="card-info">
-        <h3>REBORN</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 000 GJY</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2022</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                <div class="card-img">
+                    <img src="<?= $mobil['gambar'] ?>">
+                </div>
 
+                <div class="card-info">
 
-<a href="detailmobil.php?mobil=denza" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/denza.png">
-    </div>
-    <div class="card-info">
-        <h3>DENZA D9</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 188 BUD</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2024</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                    <h3><?= htmlspecialchars($mobil['nama']) ?></h3>
 
+                    <div class="meta">
+                        <img src="images/plat.png">
+                        <span><?= htmlspecialchars($mobil['plat']) ?></span>
+                    </div>
 
-<a href="detailmobil.php?mobil=camry" class="card fade-up" data-status="maintenance">
-    <div class="card-img">
-        <img src="images/camry.png">
-    </div>
-    <div class="card-info">
-        <h3>CAMRY</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 333 NYE</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2021</span>
-        </div>
-        <div class="status">
-            <img src="images/maintenance.png">
-            <span style="color:#071D63;">Maintenance</span>
-        </div>
-    </div>
-</a>
+                    <div class="meta">
+                        <img src="images/logo tahun.png">
+                        <span><?= $mobil['tahun'] ?></span>
+                    </div>
 
+                    <div class="status">
 
-<a href="detailmobil.php?mobil=gclass" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/gclass.png">
-    </div>
-    <div class="card-info">
-        <h3>G CLASS</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 123 YRH</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2023</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                        <?php
+                        $status = strtolower($mobil['status']);
 
+                        if($status == 'tersedia'){
+                            $icon = 'tersedia.png';
+                            $color = '#2ecc71';
+                        }elseif($status == 'dipinjam'){
+                            $icon = 'dipinjam.png';
+                            $color = 'red';
+                        }else{
+                            $icon = 'maintenance.png';
+                            $color = '#071D63';
+                        }
+                        ?>
 
-<a href="detailmobil.php?mobil=ionic" class="card fade-up" data-status="tersedia">
-    <div class="card-img">
-        <img src="images/ionic.png">
-    </div>
-    <div class="card-info">
-        <h3>IONIC 5</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 111 NTH</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2024</span>
-        </div>
-        <div class="status">
-            <img src="images/tersedia.png">
-            <span style="color:#2ecc71;">Tersedia</span>
-        </div>
-    </div>
-</a>
+                        <img src="images/<?= $icon ?>">
 
+                        <span style="color:<?= $color ?>">
+                            <?= $mobil['status'] ?>
+                        </span>
 
-<a href="detailmobil.php?mobil=zenix" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/zenix.png">
-    </div>
-    <div class="card-info">
-        <h3>ZENIX</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 333 SBI</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2023</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
+                    </div>
 
+                </div>
 
-<a href="detailmobil.php?mobil=audi" class="card fade-up" data-status="maintenance">
-    <div class="card-img">
-        <img src="images/audi.png">
-    </div>
-    <div class="card-info">
-        <h3>AUDI</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 444 RYY</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2022</span>
-        </div>
-        <div class="status">
-            <img src="images/maintenance.png">
-            <span style="color:#071D63;">Maintenance</span>
-        </div>
-    </div>
-</a>
+            </a>
 
+        <?php endwhile; ?>
 
-<a href="detailmobil.php?mobil=sclass" class="card fade-up" data-status="dipinjam">
-    <div class="card-img">
-        <img src="images/sclass.png">
     </div>
-    <div class="card-info">
-        <h3>S CLASS</h3>
-        <div class="meta">
-            <img src="images/plat.png">
-            <span>L 333 KNG</span>
-        </div>
-        <div class="meta">
-            <img src="images/logo tahun.png">
-            <span>2023</span>
-        </div>
-        <div class="status">
-            <img src="images/dipinjam.png">
-            <span style="color:red;">Dipinjam</span>
-        </div>
-    </div>
-</a>
-
-</div>
 </div>
 <script src="peminjamanmobil.js"></script>
 

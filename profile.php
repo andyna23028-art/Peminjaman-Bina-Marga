@@ -138,7 +138,7 @@ nav a.active::after {
     flex-direction:column;
     justify-content:space-between;
 
-    height:535px;
+    height:570px;
 }
 
 .menu a {
@@ -359,10 +359,12 @@ nav a.active::after {
     margin:12px 0;
 }
 
-.content {
+.content{
     flex:1;
     display:flex;
     flex-direction:column;
+    position:relative;
+    min-height:570px;
 }
 
 
@@ -508,7 +510,7 @@ nav a.active::after {
     background:#f5f5f5;
     border-radius:12px;
     overflow:hidden;
-    margin-bottom:10px;
+    margin-bottom:8px;
     border-bottom:2px solid #000;
 }
 
@@ -522,8 +524,8 @@ nav a.active::after {
 
     align-items:center;
 
-    padding:8px 16px;
-    font-size:12px;
+    padding:6px 12px;
+    font-size:10px;
     font-weight:700;
 }
 
@@ -533,15 +535,15 @@ nav a.active::after {
     grid-template-columns: 1fr 140px 120px;
 
     align-items:center;
-    gap:10px;
+    gap:5px;
 
-    padding:10px 16px;
+    padding:6px 10px;
 }
 
 
 .status-detail{
-    font-size:12px;
-    line-height:1.4;
+    font-size:10px;
+    line-height:1.2;
 }
 
 
@@ -587,6 +589,8 @@ nav a.active::after {
 .btn-batal{
     width:100px;
     height:34px;
+    position: relative;
+    z-index: 999;
 
     border:none;
     border-radius:10px;
@@ -624,7 +628,7 @@ nav a.active::after {
     justify-content:center;
     align-items:center;
 
-    height:50px; 
+    height:40px; 
 }
 
 .status-icon img{
@@ -637,7 +641,7 @@ nav a.active::after {
     align-items:center;
     gap:8px;
 
-    font-size:13px;
+    font-size:12px;
     color:#666;
 
     margin-bottom:10px;
@@ -655,6 +659,7 @@ nav a.active::after {
     display:none;
     justify-content:center;
     align-items:center;
+    z-index:9999;
 }
 
 .popup-content {
@@ -766,20 +771,38 @@ nav a.active::after {
 .btn-batal:active{
     transform:scale(0.95);
 }
+.btn-pengembalian{
+    width:120px;
+    height:34px;
 
+    border:none;
+    border-radius:10px;
+
+    background:#071D63;
+    color:white;
+
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.btn-pengembalian:hover{
+    background:#0d3aa8;
+    transform:translateY(-2px);
+}
 
 .cancel-style{
-    background:#071D63;
-    width:650px;
-    padding:35px 40px;
-    border-radius:30px;
-    text-align:center;
+    width:380px;
+    padding:30px;
+    border-radius:25px;
 }
 
 .cancel-style h2{
     color:white;
-    font-size:28px;
-    margin-bottom:40px;
+    font-size:20px;
+    margin-bottom:25px;
     font-weight:700;
 }
 
@@ -787,18 +810,17 @@ nav a.active::after {
 .cancel-btn-group{
     display:flex;
     justify-content:center;
-    gap:40px;
+    gap:15px;
 }
 
 .cancel-btn-group button{
-    width:230px;
-    height:60px;
+    width:120px;
+    height:45px;
     border:none;
-    border-radius:18px;
-    font-size:20px;
+    border-radius:12px;
+    font-size:16px;
     font-weight:700;
     cursor:pointer;
-    transition:0.25s;
 }
 
 
@@ -823,9 +845,78 @@ nav a.active::after {
     transform:translateY(-2px);
     box-shadow:0 5px 12px rgba(255,0,0,0.3);
 }
+.pagination{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+
+    display:flex;
+    justify-content:center;
+    gap:8px;
+}
+
+.pagination button{
+    min-width:30px;   
+    height:30px;     
+
+    font-size:13px;   
+    border-radius:8px;
+
+    border:none;
+    background:#fff;
+    font-weight:700;
+    cursor:pointer;
+
+    box-shadow:0 2px 5px rgba(0,0,0,0.08);
+    transition:0.2s;
+}
+
+
+.pagination button:hover{
+    background:#dfe9ff;
+    transform:translateY(-2px);
+}
+
+
+.pagination button.active{
+    background:#112a6b;
+    color:white;
+}
+
+
+.pagination button:first-child,
+.pagination button:last-child{
+    color:#000 !important;
+}
+
+
+.pagination button:first-child:hover,
+.pagination button:last-child:hover{
+    color:#000 !important;
+}
+
+
+.pagination button:first-child:disabled,
+.pagination button:last-child:disabled{
+    color:#000 !important;
+    opacity:1 !important;
+}
+
+@keyframes fadeUpPage{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
 
 </style>
-</head>
+</head>  
 
 <body>
 
@@ -895,148 +986,260 @@ nav a.active::after {
 
 <div class="riwayat-wrapper fade-up">
 
-    <?php 
-    $riwayat = [
-        ["mobil"=>"PORSCHE","plat"=>"L 333 NTO","tanggal"=>"16 April 2026 - 21 April 2026"],
-        ["mobil"=>"PORSCHE","plat"=>"L 333 NTO","tanggal"=>"16 April 2026 - 21 April 2026"],
-        ["mobil"=>"PORSCHE","plat"=>"L 333 NTO","tanggal"=>"16 April 2026 - 21 April 2026"]
-    ];
-    ?>
-
-    <?php foreach($riwayat as $i => $r): ?>
-
-        <div class="riwayat-card">
-            <p>Mobil Dinas - <b><?= $r['mobil'] ?></b></p>
-            <p>Plat : <b><?= $r['plat'] ?></b></p>
-            <p>Tanggal Peminjaman : <b><?= $r['tanggal'] ?></b></p>
-        </div>
-
-        <?php if($i < count($riwayat)-1): ?>
-            <div class="divider"></div>
-        <?php endif; ?>
-
-    <?php endforeach; ?>
-
-</div>
-
-<?php elseif($page=='status'): ?>
-
-<h2 class="title fade-up">- LIHAT STATUS PEMINJAMAN AKTIF -</h2>
-<div class="line fade-up"></div>
-
-<div class="status-wrapper fade-up">
-
-   
-    <div class="status-info">
-        <img src="images/info.png">
-        Jika Peminjaman Anda telah disetujui. Silakan ambil aset sesuai jadwal.
-    </div>
-
-    <?php
-
-    $dataStatus = [
-
-        [
-            "mobil" => "PORSCHE",
-            "plat" => "L 333 NTO",
-            "tanggal" => "16 April 2026 - 21 April 2026",
-            "status" => "diproses"
-        ],
-
-        [
-            "mobil" => "INNOVA REBORN",
-            "plat" => "L 1234 AB",
-            "tanggal" => "20 April 2026 - 22 April 2026",
-            "status" => "diterima"
-        ],
-
-        [
-            "mobil" => "PAJERO SPORT",
-            "plat" => "L 999 XY",
-            "tanggal" => "25 April 2026 - 27 April 2026",
-            "status" => "ditolak"
-        ]
-
-    ];
-
-    ?>
-
-    <?php foreach($dataStatus as $data): ?>
-
 <?php
+$queryRiwayat = mysqli_query($conn,"
+SELECT *
+FROM peminjaman
+WHERE id_user='$id_user'
+AND status_pengajuan='Dikembalikan'
+ORDER BY id_peminjaman DESC
+");
 
-if($data['status'] == "diproses"){
-    $statusIcon = "images/diproses.png";
-    $statusText = "Sedang Diproses";
-}
+if(mysqli_num_rows($queryRiwayat) > 0):
 
-elseif($data['status'] == "diterima"){
-    $statusIcon = "images/terima.png";
-    $statusText = "Pengajuan Diterima";
-}
-
-elseif($data['status'] == "ditolak"){
-    $statusIcon = "images/tolak.png";
-    $statusText = "Pengajuan Ditolak";
-}
-
+    while($r = mysqli_fetch_assoc($queryRiwayat)):
 ?>
 
-<div class="status-card">
+    <div class="riwayat-card riwayat-item">
 
-    
-    <div class="status-header">
-    <span>Detail Data</span>
-    <span style="text-align:center;">Status</span>
-    <span style="text-align:right;"></span>
-</div>
+        <p>
+            Jenis Aset :
+            <b><?= $r['jenis_aset'] ?></b>
+        </p>
 
- 
-    <div class="status-body">
+        <p>
+            Nama Aset :
+            <b><?= $r['nama'] ?></b>
+        </p>
 
-        
-        <div class="status-detail">
-            Mobil Dinas - <b><?= $data['mobil'] ?></b><br>
-            Plat : <b><?= $data['plat'] ?></b><br>
+        <?php if($r['jenis_aset'] != 'Ruangan'): ?>
+
+            <p>
+                Plat :
+                <b><?= $r['plat'] ?></b>
+            </p>
+
+            <p>
+                Tipe :
+                <b><?= $r['tipe'] ?></b>
+            </p>
+
+        <?php else: ?>
+
+            <p>
+                Kode Ruangan :
+                <b><?= $r['kode'] ?></b>
+            </p>
+
+        <?php endif; ?>
+
+        <p>
             Tanggal Peminjaman :
-            <b><?= $data['tanggal'] ?></b>
-        </div>
-
-        
-        <div class="status-right">
-
-            <div class="status-icon">
-                <img src="<?= $statusIcon ?>">
-            </div>
-
-            <div class="status-text">
-                <?= $statusText ?>
-            </div>
-
-        </div>
-
-       
-        <div class="action-area">
-
-            <?php if($data['status'] == "diproses"): ?>
-
-                <button class="btn-batal" onclick="openCancelPopup(this)">
-                    Batalkan
-                </button>
-
-            <?php endif; ?>
-
-        </div>
+            <b>
+                <?= date('d F Y',strtotime($r['tanggal_mulai'])) ?>
+                -
+                <?= date('d F Y',strtotime($r['tanggal_selesai'])) ?>
+            </b>
+        </p>
 
     </div>
 
-</div>
+    <div class="divider"></div>
 
-<?php endforeach; ?>
-</div>
+<?php
+    endwhile;
+
+else:
+?>
+
+    <div class="riwayat-card">
+        <p>Belum ada riwayat peminjaman yang dikembalikan.</p>
+    </div>
 
 <?php endif; ?>
 
+</div>
+
+<div id="riwayatPagination" class="pagination"></div>
+
+<?php elseif($page=='status'): ?>
+
+    <h2 class="title fade-up">- LIHAT STATUS PEMINJAMAN AKTIF -</h2>
+    <div class="line fade-up"></div>
+
+    <div class="status-wrapper fade-up">
+
+        <div class="status-info">
+            <img src="images/info.png">
+            Jika Peminjaman Anda telah disetujui. Silakan ambil aset sesuai jadwal.
+        </div>
+
+        <?php
+
+        $queryStatus = mysqli_query($conn,"
+        SELECT
+            p.*,
+            p.nama,
+            u.username
+        FROM peminjaman p
+        LEFT JOIN user u
+        ON p.id_user = u.id_user
+        WHERE p.id_user='$id_user'
+        ORDER BY
+        CASE status_pengajuan
+            WHEN 'Diproses' THEN 1
+            WHEN 'Dikembalikan' THEN 2
+            WHEN 'Disetujui' THEN 3
+            WHEN 'Ditolak' THEN 4
+            WHEN 'Dibatalkan' THEN 5
+            ELSE 6
+        END,
+        id_peminjaman DESC
+        ");
+
+        while($data = mysqli_fetch_assoc($queryStatus)):
+
+            if(strtolower($data['status_pengajuan']) == "diproses"){
+
+                $statusIcon = "images/diproses.png";
+                $statusText = "Sedang Diproses";
+
+            }
+            elseif(strtolower($data['status_pengajuan']) == "disetujui"){
+
+                $statusIcon = "images/terima.png";
+                $statusText = "Pengajuan Diterima";
+
+            }
+            elseif(strtolower($data['status_pengajuan']) == "ditolak"){
+
+                $statusIcon = "images/tolak.png";
+                $statusText = "Pengajuan Ditolak";
+
+            }
+            elseif(strtolower($data['status_pengajuan']) == "dibatalkan"){
+
+                $statusIcon = "images/batal.png";
+                $statusText = "Pengajuan Dibatalkan";
+
+            }
+            elseif(strtolower($data['status_pengajuan']) == "dikembalikan"){
+
+                $statusIcon = "images/dikembalikan.png";
+                $statusText = "Dikembalikan";
+
+            }
+            else{
+
+                $statusIcon = "images/diproses.png";
+                $statusText = $data['status_pengajuan'];
+
+            }
+        ?>
+
+        <div class="status-card status-item">
+
+            <div class="status-header">
+                <span>Detail Data</span>
+                <span style="text-align:center;">Status</span>
+                <span></span>
+            </div>
+
+            <div class="status-body">
+
+                <div class="status-detail">
+
+                    Jenis Aset :
+                    <b><?= $data['jenis_aset'] ?></b><br>
+
+                    Nama Aset :
+                    <b><?= $data['nama'] ?></b><br>
+
+                    <?php if($data['jenis_aset'] != 'Ruangan'): ?>
+
+                        Plat :
+                        <b><?= $data['plat'] ?></b><br>
+
+                        Tipe :
+                        <b><?= $data['tipe'] ?></b><br>
+
+                    <?php else: ?>
+
+                        Kode Ruangan :
+                        <b><?= $data['kode'] ?></b><br>
+
+                    <?php endif; ?>
+
+                    Username :
+                    <b><?= $data['username'] ?></b><br>
+
+                    Tanggal Peminjaman :
+                    <b>
+                        <?= date('d F Y',strtotime($data['tanggal_mulai'])) ?>
+                        -
+                        <?= date('d F Y',strtotime($data['tanggal_selesai'])) ?>
+                    </b><br>
+
+                    Jam :
+                    <b><?= date('H:i',strtotime($data['jam_mulai'])) ?></b>
+
+                    <?php
+                    if(
+                        strtolower($data['status_pengajuan']) == 'ditolak'
+                        &&
+                        !empty($data['alasan_penolakan'])
+                    ):
+                    ?>
+
+                    <br>
+
+                    Alasan Penolakan :
+                    <b><?= $data['alasan_penolakan'] ?></b>
+
+                    <?php endif; ?>
+
+                </div>
+
+                <div class="status-right">
+
+                    <div class="status-icon">
+                        <img src="<?= $statusIcon ?>">
+                    </div>
+
+                    <div class="status-text">
+                        <?= $statusText ?>
+                    </div>
+
+                </div>
+
+                <div class="action-area">
+
+                    <?php if(strtolower($data['status_pengajuan']) == "diproses"): ?>
+
+                        <button
+                            class="btn-batal"
+                            onclick="openCancelPopup(<?= $data['id_peminjaman'] ?>)">
+                            Batalkan
+                        </button>
+
+                    <?php elseif(strtolower($data['status_pengajuan']) == "disetujui"): ?>
+
+                        <button
+                            class="btn-pengembalian"
+                            onclick="openReturnPopup(<?= $data['id_peminjaman'] ?>)">
+                            Kembalikan
+                        </button>
+
+                    <?php endif; ?>
+                </div>
+            </div>
+    </div>
+<?php endwhile; ?>
+
+</div>
+<div id="statusPagination" class="pagination"></div>
+
+<?php endif; ?>
 
 <div class="popup" id="editPopup">
 <form method="POST">
@@ -1099,26 +1302,77 @@ elseif($data['status'] == "ditolak"){
 
 <div class="popup" id="cancelPopup">
 
+    <form id="cancelForm" action="batalkan_peminjaman.php" method="POST">
+
+        <div class="popup-content cancel-style">
+
+            <h2>Batalkan Pinjaman Anda?</h2>
+                <input
+                    type="hidden"
+                    name="id_peminjaman"
+                    id="cancel_id">
+            <div class="cancel-btn-group">
+
+                <button type="button" class="btn-batal" onclick="closeCancelPopup()">
+                    Batal
+                </button>
+
+                <button type="submit" class="btn-ya">
+                    YA
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+<div class="popup" id="returnPopup">
+
+<form action="pengembalian.php" method="POST">
+
+    <input
+        type="hidden"
+        name="id_peminjaman"
+        id="return_id">
+
     <div class="popup-content cancel-style">
 
-        <h2>Batalkan Pinjaman Anda?</h2>
+        <h2>Ingin Mengembalikan Barang?</h2>
+
+        <p style="color:white; margin-bottom:25px;">
+            Apakah Anda yakin ingin mengembalikan barang ini?
+            Pastikan semua kondisi barang sudah sesuai
+            dengan ketentuan yang berlaku.
+        </p>
 
         <div class="cancel-btn-group">
 
-            <button class="btn-batal" onclick="closeCancelPopup()">
+            <button
+                type="button"
+                class="btn-batal"
+                onclick="closeReturnPopup()">
+
                 Batal
+
             </button>
 
-            <button class="btn-ya" onclick="confirmCancel()">
+            <button
+                type="submit"
+                class="btn-ya">
+
                 YA
+
             </button>
 
         </div>
 
     </div>
 
-</div>
+</form>
 
+</div>
 <script src="profile.js"></script>
 
 </body>

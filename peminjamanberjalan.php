@@ -1,43 +1,22 @@
 <?php
 $currentPage = 'peminjamanberjalan';
-
-
-$data = [
-
-    "motor" => [
-        ["nama"=>"HONDA SUPRA 125","plat"=>"L 276 TYN","tipe"=>"Bebek","tahun"=>"2020","gambar"=>"images/supra.png"],
-        ["nama"=>"HONDA VARIO 120","plat"=>"L 736 NDU","tipe"=>"Matic","tahun"=>"2019","gambar"=>"images/vario.png"],
-        ["nama"=>"YAMAHA NMAX","plat"=>"L 191 BNA","tipe"=>"Matic","tahun"=>"2025","gambar"=>"images/nmax.png"],
-        ["nama"=>"HONDA PCX 160","plat"=>"L 837 NHD","tipe"=>"Matic","tahun"=>"2025","gambar"=>"images/pcx.png"],
-        ["nama"=>"HONDA BEAT ESP","plat"=>"L 837 KSD","tipe"=>"Matic","tahun"=>"2025","gambar"=>"images/beat.png"],
-        ["nama"=>"HONDA SCOOPY","plat"=>"L 326 KSJ","tipe"=>"Matic","tahun"=>"2025","gambar"=>"images/scoopy.png"],
-        ["nama"=>"HONDA VERZA","plat"=>"L 539 YDB","tipe"=>"Sport","tahun"=>"2025","gambar"=>"images/verza.png"],
-        ["nama"=>"HONDA CB150R","plat"=>"L 736 NXU","tipe"=>"Sport","tahun"=>"2025","gambar"=>"images/cb150r.png"],
-        ["nama"=>"YAMAHA VIXION","plat"=>"L 983 NMJ","tipe"=>"Sport","tahun"=>"2025","gambar"=>"images/vixion.png"]
-    ],
-"mobil" => array_values([
-        ["nama"=>"PORSCHE 911","plat"=>"L 333 NTO","tipe"=>"Sport","tahun"=>"2025","gambar"=>"images/porsche.png"],
-        ["nama"=>"INNOVA REBORN","plat"=>"L 000 GJY","tipe"=>"MPV","tahun"=>"2022","gambar"=>"images/reborn.png"],
-        ["nama"=>"DENZA D9","plat"=>"L 188 BUD","tipe"=>"Electric","tahun"=>"2024","gambar"=>"images/denza.png"],
-        ["nama"=>"CAMRY","plat"=>"L 333 NYE","tipe"=>"Sedan","tahun"=>"2021","gambar"=>"images/camry.png"],
-        ["nama"=>"G CLASS","plat"=>"L 123 YRH","tipe"=>"SUV","tahun"=>"2023","gambar"=>"images/gclass.png"],
-        ["nama"=>"IONIC 5","plat"=>"L 111 NTH","tipe"=>"Electric","tahun"=>"2024","gambar"=>"images/ionic.png"],
-        ["nama"=>"ZENIX","plat"=>"L 333 SBI","tipe"=>"Hybrid","tahun"=>"2023","gambar"=>"images/zenix.png"],
-        ["nama"=>"AUDI","plat"=>"L 444 RYY","tipe"=>"Sedan","tahun"=>"2022","gambar"=>"images/audi.png"],
-        ["nama"=>"S CLASS","plat"=>"L 333 KNG","tipe"=>"Luxury","tahun"=>"2023","gambar"=>"images/sclass.png"]
-    ]),
- "ruangan" => [
-        ["nama"=>"R. RAPAT B","plat"=>"Lt.2","tipe"=>"B.2.130.115","tahun"=>"40 Orang","gambar"=>"images/rapatb.png"],
-        ["nama"=>"R. RAPAT K","plat"=>"Lt.2","tipe"=>"A.2.350.225","tahun"=>"15 Orang","gambar"=>"images/rapatk.png"],
-        ["nama"=>"R. DISKUSI","plat"=>"Lt.3","tipe"=>"B.3.131.116","tahun"=>"10 Orang","gambar"=>"images/diskusi.png"],
-        ["nama"=>"R. AVI","plat"=>"Lt.1","tipe"=>"C.1.339.467","tahun"=>"100 Orang","gambar"=>"images/avi.png"],
-        ["nama"=>"R. WEB","plat"=>"Lt.2","tipe"=>"C.2.755.911","tahun"=>"50 Orang","gambar"=>"images/web.png"],
-        ["nama"=>"PANDHAWA","plat"=>"Lt.3","tipe"=>"A.3.550.458","tahun"=>"350 Orang","gambar"=>"images/pandhawa.png"],
-        ["nama"=>"LAP. TENNIS","plat"=>"Lt.1","tipe"=>"B.1.120.111","tahun"=>"4 Orang","gambar"=>"images/tennis.png"],
-        ["nama"=>"LAB","plat"=>"Lt.1","tipe"=>"A.1.250.222","tahun"=>"10 Orang","gambar"=>"images/lab.png"],
-        ["nama"=>"AULA","plat"=>"Lt.3","tipe"=>"C.3.321.756","tahun"=>"300 Orang","gambar"=>"images/aula.png"]
-    ]
-];
+include 'koneksi.php';
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'Mobil';
+$query = mysqli_query($conn,"
+SELECT *
+FROM peminjaman
+WHERE jenis_aset='$filter'
+ORDER BY
+CASE
+    WHEN status_pengajuan='Diproses' THEN 1
+    WHEN status_pengajuan='Dikembalikan' THEN 2
+    WHEN status_pengajuan='Disetujui' THEN 3
+    WHEN status_pengajuan='Ditolak' THEN 4
+    WHEN status_pengajuan='Dibatalkan' THEN 5
+    ELSE 6
+END,
+id_peminjaman DESC
+");
 ?>
 
 <!DOCTYPE html>
@@ -49,16 +28,21 @@ $data = [
 <style>
 
 * {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', sans-serif;}
-body {background:#f4f4f4;display:flex;}
-
-.sidebar {
+body{
+    background:#f4f4f4;
+    display:flex;
+    overflow-x:hidden;
+}
+.sidebar{
     width:260px;
-    height:100vh;
-    background:#ffffff;
+    min-width:260px;
+    height:calc(100vh - 30px);
+    background:#fff;
     padding:28px;
     border-radius:20px;
     margin:15px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    flex-shrink:0;
 }
 
 .logo {
@@ -120,13 +104,15 @@ body {background:#f4f4f4;display:flex;}
 
 
 .menu a.active {
-    background:#ffc400;
-    font-weight:bold;
+    background: #ffc400;
+    color: #000;
+    font-weight: bold;
 }
 
 
 .menu a:hover {
-    background:#A8BDFF;
+    background: #A8BDFF;
+    color: #0b2c6a;
 }
 
 
@@ -170,71 +156,138 @@ body {background:#f4f4f4;display:flex;}
 .content{
     flex:1;
     padding:20px;
-
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
-}
-
-.header {
-    background:#112a6b;color:#fff;
-    padding:20px;border-radius:15px;
-    font-size:24px;font-weight:bold;
-    margin-left:70px;margin-bottom:20px;
-}
-
-
-.table-head, .row {
-    display:grid;
-    grid-template-columns: 
-        50px
-        80px
-        1.5fr
-        1.5fr
-        2fr
-        1fr
-        100px;
-}
-
-.table-head div {
-    padding:12px;text-align:center;font-weight:600;
-}
-
-.row div {
-    padding:12px;text-align:center;
-    border-top:1px solid #ddd;
-}
-
-.table-container{
-    background:#f4f4f4;
-    height:500px;
-
-    display:flex;
-    flex-direction:column;
-
-    border-radius:28px;
-    padding:15px 25px;
-
-    box-shadow:0 5px 12px rgba(0,0,0,0.12);
-}
-
-
-#tableBody{
-    flex:1;
+    min-width:0;
     overflow:hidden;
 }
 
+.header{
+    background:#112a6b;
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    font-size:24px;
+    font-weight:bold;
+
+    margin-left:70px;
+    margin-bottom:20px;
+}
+
+
+/* Mobil & Motor */
+/* Mobil & Motor */
+.table-head,
+.row{
+    display:grid;
+    grid-template-columns:
+        50px
+        1.2fr
+        1.5fr
+        0.9fr
+        1fr
+        0.8fr
+        1.4fr
+        0.8fr
+        1fr
+        0.9fr;
+
+    align-items:center;
+}
+
+/* Ruangan */
+.table-head.ruangan,
+.row.ruangan{
+    display:grid;
+    grid-template-columns:
+        50px
+        1.2fr
+        1.5fr
+        0.9fr
+        1fr
+        1.4fr
+        0.8fr
+        1fr
+        0.9fr;
+
+    align-items:center;
+}
+
+.table-head div,
+.row div{
+    padding:8px 5px;
+    font-size:14px;
+}
+
+.row {
+    border-top:1px solid #ddd;
+}
+
+/* BIKIN ISI SEMUA KOLOM TENGAH */
+.row > div{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* KHUSUS STATUS */
+.row > div:nth-child(9){
+    justify-content:center !important;
+}
+
+.status-badge{
+    display:inline-flex;
+
+    justify-content:center;
+    align-items:center;
+
+    min-width:100px;
+
+    margin:auto;
+
+    padding:7px 14px;
+
+    border-radius:20px;
+}
+.aksi{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    min-width:70px;
+}
+
+.table-scroll{
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+}
+
+.table-container{
+    width:100%;
+    max-width:100%;
+
+    background:#fff;
+    border-radius:20px;
+    padding:20px;
+
+    box-shadow:0 4px 8px rgba(0,0,0,0.1);
+
+    display:flex;
+    flex-direction:column;
+    min-height:490px;
+}
+
+#tableBody{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
 
 .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
+    display:flex;
+    justify-content:center;
+    gap:8px;
 
-    margin-top: auto;  
-    padding-top: 20px;
-
-    position: relative;
-    bottom: 25px;    
+    margin-top:auto;
+    padding-top:20px;
 }
 
 .pagination button{
@@ -357,10 +410,11 @@ body {background:#f4f4f4;display:flex;}
     cursor: pointer;
     font-weight: 600;
     text-align: center;
+    text-decoration: none; /* HILANGKAN GARIS BAWAH */
     transition: all 0.3s ease;
 }
 .tab:hover {
-    background: #FFFFF;
+    background: #ffffff;
     transform: translateY(-3px); /* naik dikit */
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
@@ -370,19 +424,6 @@ body {background:#f4f4f4;display:flex;}
     transform: scale(1.02);
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
-.table-head, .row {
-    display:grid;
-    grid-template-columns: 
-        50px
-        80px
-        1.5fr
-        1.5fr
-        2fr
-        1fr
-        120px   
-        100px;  
-}
-
 
 .status {
     display: flex;
@@ -416,21 +457,29 @@ body {background:#f4f4f4;display:flex;}
 }
 
 
-.status-badge.Diproses {
-    background: #071D63;
-    color: white;
+.status-badge.Diproses{
+    background:#071D63;
+    color:white;
 }
 
-
-.status-badge.Diterima {
-    background: #09DB22;
-    color: white;
+.status-badge.Disetujui{
+    background:#09DB22;
+    color:white;
 }
 
+.status-badge.Ditolak{
+    background:#FF0000;
+    color:white;
+}
 
-.status-badge.Ditolak {
-    background: #FF0000;
-    color: white;
+.status-badge.Dibatalkan{
+    background:#808080;
+    color:white;
+}
+
+.status-badge.Dikembalikan{
+    background:#FFA500;
+    color:white;
 }
 .status-box {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -725,14 +774,21 @@ body {background:#f4f4f4;display:flex;}
     </div>
 
     <div class="menu">
-        <a href="dashboard.php" class="dashboard">Dashboard</a>
-        <a href="kelolamobil.php" class="kelolamobil">Kelola Mobil</a>
-        <a href="kelolamotor.php" class="kelolamotor">Kelola Motor</a>
-        <a href="kelolaruangan.php" class="kelolaruangan">Kelola Ruangan</a>
-        <a href="kelolauser.php" class="kelolauser">Kelola User</a>
-        <a href="peminjamanberjalan.php" class="peminjamanberjalan active">Peminjaman Berjalan</a>
-        <a href="laporanpengaduan.php" class="laporanpengaduan">Laporan Pengaduan</a>
-        <a href="profileadmin.php" class="profileadmin">Profile</a>
+        <a href="dashboard.php" class="dashboard <?= $currentPage=='dashboard'?'active':'' ?>">Dashboard</a>
+
+<a href="kelolamobil.php" class="kelolamobil <?= $currentPage=='kelolamobil'?'active':'' ?>">Kelola Mobil</a>
+
+<a href="kelolamotor.php" class="kelolamotor <?= $currentPage=='kelolamotor'?'active':'' ?>">Kelola Motor</a>
+
+<a href="kelolaruangan.php" class="kelolaruangan <?= $currentPage=='kelolaruangan'?'active':'' ?>">Kelola Ruangan</a>
+
+<a href="kelolauser.php" class="kelolauser <?= $currentPage=='kelolauser'?'active':'' ?>">Kelola User</a>
+
+<a href="peminjamanberjalan.php" class="peminjamanberjalan <?= $currentPage=='peminjamanberjalan'?'active':'' ?>">Peminjaman Berjalan</a>
+
+<a href="laporanpengaduan.php" class="laporanpengaduan <?= $currentPage=='laporanpengaduan'?'active':'' ?>">Laporan Pengaduan</a>
+
+<a href="profileadmin.php" class="profileadmin <?= $currentPage=='profileadmin'?'active':'' ?>">Profile</a>
     </div>
 
     <button class="logout" onclick="openLogout()">Keluar</button>
@@ -741,42 +797,118 @@ body {background:#f4f4f4;display:flex;}
 
 <div class="content">
 
-<div class="header">PEMINJAMAN BERJALAN</div>
-<div class="tab-container">
-    <button class="tab active" data-tab="mobil">Mobil</button>
-    <button class="tab" data-tab="motor">Motor</button>
-    <button class="tab" data-tab="ruangan">Ruangan</button>
+    <div class="header">PEMINJAMAN BERJALAN</div>
+    <div class="tab-container">
+        <a href="?filter=Mobil"
+        class="tab <?= $filter=='Mobil'?'active':'' ?>">
+        Mobil
+        </a>
+
+        <a href="?filter=Motor"
+        class="tab <?= $filter=='Motor'?'active':'' ?>">
+        Motor
+        </a>
+
+        <a href="?filter=Ruangan"
+        class="tab <?= $filter=='Ruangan'?'active':'' ?>">
+        Ruangan
+        </a>
+    </div>
+
+    <div class="table-container">
+
+        <div class="table-head <?= $filter=='Ruangan' ? 'ruangan' : '' ?>">
+
+            <div>No</div>
+            <div>Username</div>
+            <div>Nama Aset</div>
+            <div>Jenis Aset</div>
+            <div>Plat/Kode</div>
+            <?php if($filter != 'Ruangan'): ?>
+                <div>Tipe</div>
+            <?php endif; ?>
+            <div>Tanggal</div>
+            <div>Jam</div>
+            <div>Status</div>
+            <div>Aksi</div>
+
+        </div>
+        <div id="tableBody">
+            <?php
+                $no = 1;
+
+                while($row = mysqli_fetch_assoc($query)){
+                ?>
+
+                <div class="row <?= $filter=='Ruangan' ? 'ruangan' : '' ?>">
+
+                    <div><?= $no++ ?></div>
+
+                    <div><?= $row['username'] ?></div>
+
+                    <div><?= $row['nama'] ?></div>
+
+                    <div><?= $row['jenis_aset'] ?></div>
+
+                    <div>
+                        <?= !empty($row['plat']) ? $row['plat'] : $row['kode'] ?>
+                    </div>
+
+                    <?php if($filter != 'Ruangan'): ?>
+                        <div>
+                            <?= $row['tipe'] ?? '-' ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div>
+                        <?= $row['tanggal_mulai'] ?>
+                        <br>
+                        s/d
+                        <br>
+                        <?= $row['tanggal_selesai'] ?>
+                    </div>
+
+                    <div><?= $row['jam_mulai'] ?></div>
+
+                    <div>
+                        <span class="status-badge <?= $row['status_pengajuan'] ?>">
+                            <?= $row['status_pengajuan'] ?>
+                        </span>
+                    </div>
+
+                    <div class="aksi">
+
+                        <?php if($row['status_pengajuan']=='Diproses'): ?>
+
+                            <a href="#"
+                            onclick="openPopupTolak(<?= $row['id_peminjaman'] ?>); return false;">
+                                <div class="btn-tolak">
+                                    <img src="images/tolak.png">
+                                </div>
+                            </a>
+
+                            <a href="#"
+                            onclick="openPopupSetuju(<?= $row['id_peminjaman'] ?>); return false;">
+                                <div class="btn-terima">
+                                    <img src="images/terima.png">
+                                </div>
+                            </a>
+
+                        <?php else: ?>
+
+                            
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+            <?php } ?>
+        </div>
+        <div class="pagination" id="pagination"></div>
+    </div>
 </div>
-
-<div class="table-container">
-
-   <div class="table-head">
-
-    <div>No</div>
-
-    <div></div>
-
-    <div>Nama</div>
-
-    <div>Plat</div>
-
-    <div>Tipe</div>
-
-    <div>Tahun</div>
-
-    <div>Status</div>
-
-    <div></div>
-
-</div>
-    <div id="tableBody"></div>
-
-    <div class="pagination" id="pagination"></div>
-
-</div>
-<script>
-    window.peminjamanData = <?php echo json_encode($data); ?>;
-</script>
 
 </div>
 
@@ -863,7 +995,197 @@ body {background:#f4f4f4;display:flex;}
     </div>
 </div>
 
-<script src="peminjamanberjalan.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+    const rows = document.querySelectorAll("#tableBody .row");
+    const pagination = document.getElementById("pagination");
+
+    let currentPage = 1;
+    const rowsPerPage = 4;
+
+    function showPage(page) {
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(rows.length / rowsPerPage)
+        );
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        currentPage = page;
+
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+
+            if (index >= start && index < end) {
+                row.style.display = "grid";
+            } else {
+                row.style.display = "none";
+            }
+
+        });
+
+        renderPagination();
+    }
+
+    function renderPagination() {
+
+        pagination.innerHTML = "";
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(rows.length / rowsPerPage)
+        );
+
+        // Tombol Previous
+        const prev = document.createElement("button");
+        prev.innerHTML = "‹";
+        prev.disabled = currentPage === 1;
+
+        prev.onclick = function () {
+            if (currentPage > 1) {
+                showPage(currentPage - 1);
+            }
+        };
+
+        pagination.appendChild(prev);
+
+        // Nomor halaman
+        for (let i = 1; i <= totalPages; i++) {
+
+            const btn = document.createElement("button");
+            btn.innerText = i;
+
+            if (i === currentPage) {
+                btn.classList.add("active");
+            }
+
+            btn.onclick = function () {
+                showPage(i);
+            };
+
+            pagination.appendChild(btn);
+        }
+
+        // Tombol Next
+        const next = document.createElement("button");
+        next.innerHTML = "›";
+        next.disabled = currentPage === totalPages;
+
+        next.onclick = function () {
+            if (currentPage < totalPages) {
+                showPage(currentPage + 1);
+            }
+        };
+
+        pagination.appendChild(next);
+    }
+
+    showPage(1);
+
+});
+    
+
+// ======================
+// LOGOUT
+// ======================
+
+function openLogout() {
+  document.getElementById("logoutPopup").style.display = "flex";
+}
+
+function closeLogout() {
+  document.getElementById("logoutPopup").style.display = "none";
+}
+
+function logout() {
+  window.location.href = "berandabeforelog.php";
+}
+
+// ======================
+// POPUP TOLAK
+// ======================
+
+function openPopupTolak(id) {
+    selectedId = id;
+    document.getElementById("popupTolak").style.display = "flex";
+}
+
+function closePopupTolak() {
+  document.getElementById("popupTolak").style.display = "none";
+}
+
+function konfirmasiTolak() {
+
+const alasan = document.querySelector(
+'input[name="alasan"]:checked'
+);
+
+if(!alasan){
+
+    alert("Pilih alasan penolakan");
+    return;
+
+}
+
+fetch("tolak_peminjaman.php",{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/x-www-form-urlencoded"
+    },
+    body:
+    "id_peminjaman="+selectedId+
+    "&alasan="+encodeURIComponent(alasan.parentElement.innerText)
+})
+.then(res=>res.text())
+.then(data=>{
+
+    alert("Pengajuan ditolak");
+
+    location.reload();
+
+});
+
+  closePopupTolak();
+}
+
+// ======================
+// POPUP SETUJU
+// ======================
+
+function openPopupSetuju(id) {
+    selectedId = id;
+    document.getElementById("popupSetuju").style.display = "flex";
+}
+
+function closePopupSetuju() {
+  document.getElementById("popupSetuju").style.display = "none";
+}
+
+function konfirmasiSetuju() {
+
+fetch("setujui_peminjaman.php",{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/x-www-form-urlencoded"
+    },
+    body:"id_peminjaman="+selectedId
+})
+.then(res=>res.text())
+.then(data=>{
+
+    alert("Peminjaman disetujui");
+
+    location.reload();
+
+});
+
+}
+</script>
 
 </body>
 </html>

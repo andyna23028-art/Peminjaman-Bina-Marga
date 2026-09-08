@@ -1,27 +1,26 @@
 <?php
-$ruang = $_GET['ruang'] ?? 'rapatb';
+require_once 'koneksi.php';
 
-$data = [
-    "rapatb" => ["nama"=>"R. RAPAT B","lantai"=>"2","kode"=>"B.2.130.115","kapasitas"=>"40 Orang","gambar"=>"images/rapatb.png","status"=>"tersedia"],
-    "rapatk" => ["nama"=>"R. RAPAT K","lantai"=>"2","kode"=>"A.2.350.225","kapasitas"=>"15 Orang","gambar"=>"images/rapatk.png","status"=>"dipinjam"],
-    "diskusi" => ["nama"=>"R. DISKUSI","lantai"=>"3","kode"=>"B.3.131.116","kapasitas"=>"10 Orang","gambar"=>"images/diskusi.png","status"=>"dipinjam"],
-    "avi" => ["nama"=>"R. AVI","lantai"=>"1","kode"=>"C.1.339.467","kapasitas"=>"100 Orang","gambar"=>"images/avi.png","status"=>"tersedia"],
-    "web" => ["nama"=>"R. WEB","lantai"=>"2","kode"=>"C.2.755.911","kapasitas"=>"50 Orang","gambar"=>"images/web.png","status"=>"tersedia"],
-    "pandhawa" => ["nama"=>"PANDHAWA","lantai"=>"3","kode"=>"A.3.550.458","kapasitas"=>"350 Orang","gambar"=>"images/pandhawa.png","status"=>"dipinjam"],
-    "tennis" => ["nama"=>"LAP. TENNIS","lantai"=>"1","kode"=>"B.1.120.111","kapasitas"=>"4 Orang","gambar"=>"images/tennis.png","status"=>"dipinjam"],
-    "lab" => ["nama"=>"LAB","lantai"=>"1","kode"=>"A.1.250.222","kapasitas"=>"10 Orang","gambar"=>"images/lab.png","status"=>"tersedia"],
-    "aula" => ["nama"=>"AULA","lantai"=>"3","kode"=>"C.3.321.756","kapasitas"=>"300 Orang","gambar"=>"images/aula.png","status"=>"maintenance"]
-];
+$id = $_GET['id'];
 
-$r = $data[$ruang] ?? $data['rapatb'];
+$sql = "SELECT * FROM ruangan
+        WHERE id='$id'";
+
+$query = mysqli_query($conn, $sql);
+
+$ruangan = mysqli_fetch_assoc($query);
+
+if(!$ruangan){
+    die("Data ruangan tidak ditemukan");
+}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Detail Ruang - <?= $r['nama'] ?></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Ruangan</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,8 +55,8 @@ $r = $data[$ruang] ?? $data['rapatb'];
 }
 
 .top-item.social img {
-    width: 20px;    
-    height: 20px;    
+    width: 20px;     
+    height: 20px;   
     object-fit: contain;
     opacity: 0.85;
     transition: 0.3s ease;
@@ -68,7 +67,6 @@ $r = $data[$ruang] ?? $data['rapatb'];
     transform: scale(1.15); 
 }
 
-
         .header { background: #fff; padding: 15px 60px; display: flex; align-items: center; border-bottom: 1px solid #ddd; }
         .header img { width: 50px; margin-right: 15px; }
         .header-text { font-size: 14px; font-weight: 700; color: #1a2c6b; line-height: 1.2; }
@@ -78,10 +76,11 @@ $r = $data[$ruang] ?? $data['rapatb'];
 
 
 
+       
         .main-container { display: flex; padding: 0 60px 60px; align-items: flex-start; justify-content: space-between; }
-        .car-display { width: 55%; text-align: center; }
-        .car-display img { width: 100%; max-width: 600px; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2)); }
-        .car-name-box { margin-top: 5px; background: #fff; display: inline-block; padding: 12px 60px; border-radius: 10px; font-weight: 800; font-size: 24px; color: #1a2c6b; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .room-display { width: 55%; text-align: center; }
+        .room-display img { width: 100%; max-width: 600px; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2)); }
+        .room-name-box { margin-top: 5px; background: #fff; display: inline-block; padding: 12px 60px; border-radius: 10px; font-weight: 800; font-size: 24px; color: #1a2c6b; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
         .details-section { width: 38%; }
         .details-section h1 { font-size: 28px; font-weight: 700; margin-bottom: 20px; text-align: center; }
@@ -135,7 +134,7 @@ $r = $data[$ruang] ?? $data['rapatb'];
 
 .back-link:hover {
     color: #d92c23;
-    transform: translateX(-5px);
+    transform: translateX(-5px); 
 }
 
 
@@ -326,7 +325,6 @@ $r = $data[$ruang] ?? $data['rapatb'];
     font-weight: bold;
 }
 
-
     </style>
 </head>
 <body>
@@ -366,96 +364,120 @@ $r = $data[$ruang] ?? $data['rapatb'];
         <div class="header-text">DINAS PEKERJAAN UMUM BINA MARGA<br>PROVINSI JAWA TIMUR</div>
     </header>
 
-    <a href="peminjamanruang.php" class="back-link">
-    <img src="images/kembali.png"> Kembali
-</a>
+    <a href="peminjamanruang.php" class="back-link"><img src="images/kembali.png" alt="Back"> Kembali</a>
 
-<div class="main-container">
-    <div class="car-display">
-        <img src="<?= $r['gambar'] ?>" alt="Ruang">
-        <div class="car-name-box"><?= $r['nama'] ?></div>
-    </div>
-
-    <div class="details-section">
-        <h1>Deskripsi & Spesifikasi</h1>
-
-        <div class="specs-box">
-            <div class="spec-row">
-                <span class="spec-label">Nama</span> 
-                <span><?= $r['nama'] ?></span>
-            </div>
-
-            <div class="spec-row">
-                <span class="spec-label">Lantai</span> 
-                <span><?= $r['lantai'] ?></span>
-            </div>
-
-            <div class="spec-row">
-                <span class="spec-label">Kode Ruang</span> 
-                <span><?= $r['kode'] ?></span>
-            </div>
-
-            <div class="spec-row">
-                <span class="spec-label">Kapasitas</span> 
-                <span><?= $r['kapasitas'] ?></span>
-            </div>
+    <div class="main-container">
+        <div class="room-display">
+            <img src="<?= $ruangan['gambar'] ?>" alt="Ruangan">
+            <div class="room-name-box"><?= $ruangan['nama'] ?></div>
         </div>
-        
+        <div class="details-section">
+            <h1>Deskripsi & Spesifikasi</h1>
+            <div class="spec-row">
+            <span class="spec-label">Nama Ruangan</span>
+            <span><?= $ruangan['nama'] ?></span>
+        </div>
 
-        <button class="btn-pinjam" onclick="handleAction('<?= $r['status'] ?>')">
-            Pinjam Sekarang
-        </button>
+        <div class="spec-row">
+            <span class="spec-label">Kode Ruangan</span>
+            <span><?= $ruangan['kode'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Lantai</span>
+            <span><?= $ruangan['lantai'] ?></span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Kapasitas</span>
+            <span><?= $ruangan['kapasitas'] ?> Orang</span>
+        </div>
+
+        <div class="spec-row">
+            <span class="spec-label">Status</span>
+            <span><?= $ruangan['status'] ?></span>
+        </div>
+            <button class="btn-pinjam"onclick="handleAction('<?= strtolower($ruangan['status']) ?>')">
+                Pinjam Sekarang
+            </button>
+        </div>
     </div>
-</div>
 
     <div id="overlay">
         <div class="modal">
-            <h2>Tentukan Tanggal Peminjaman</h2>
-            <div class="line-gradient"></div>
+            <form action="proses_peminjaman.php" method="POST">
 
-            <div class="calendars-grid">
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Mulai</p>
-                    <div class="mini-cal" id="cal-start">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('start', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('start', 1)">❯</span>
+                <input type="hidden"
+                name="id_aset"
+                value="<?= $ruangan['id'] ?>">
+
+                <input type="hidden"
+                    name="jenis_aset"
+                    value="Ruangan">
+
+                <input type="hidden"
+                    name="tanggal_mulai"
+                    id="tanggalMulai">
+
+                <input type="hidden"
+                    name="tanggal_selesai"
+                    id="tanggalSelesai">
+
+                <h2>Tentukan Tanggal Peminjaman</h2>
+                <div class="line-gradient"></div>
+
+                <div class="calendars-grid">
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Mulai</p>
+                        <div class="mini-cal" id="cal-start">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('start', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('start', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
                         </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
+                    </div>
+                    <div class="cal-wrapper">
+                        <p class="cal-title">Tanggal Selesai</p>
+                        <div class="mini-cal" id="cal-end">
+                            <div class="cal-head">
+                                <span onclick="changeMonth('end', -1)">❮</span>
+                                <b class="month-name"></b>
+                                <span onclick="changeMonth('end', 1)">❯</span>
+                            </div>
+                            <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="cal-dates"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="cal-wrapper">
-                    <p class="cal-title">Tanggal Selesai</p>
-                    <div class="mini-cal" id="cal-end">
-                        <div class="cal-head">
-                            <span onclick="changeMonth('end', -1)">❮</span>
-                            <b class="month-name"></b>
-                            <span onclick="changeMonth('end', 1)">❯</span>
-                        </div>
-                        <div class="cal-days"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-                        <div class="cal-dates"></div>
-                    </div>
+
+                <div class="time-header">
+                    <h3>Waktu Mulai</h3>
+                    <div class="time-line"></div>
                 </div>
-            </div>
+                <select class="time-select" name="jam_mulai" required>
+                    <option value="">Pilih waktu yang tersedia</option>
+                    <option value="09:00">09.00</option>
+                    <option value="10:00">10.00</option>
+                    <option value="13:00">13.00</option>
+                    <option value="14:00">14.00</option>
+                </select>
+                
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn-batal"
+                            onclick="toggleModal(false)">
+                        Batal
+                    </button>
 
-            <div class="time-header">
-                <h3>Waktu Mulai</h3>
-                <div class="time-line"></div>
-            </div>
-           <select class="time-select">
-    <option selected disabled>Pilih waktu yang tersedia</option>
-    <option value="09:00">09.00</option>
-    <option value="10:00">10.00</option>
-    <option value="13:00">13.00</option>
-    <option value="14:00">14.00</option>
-</select>
-
-            <div class="modal-footer">
-                <button class="btn-batal" onclick="toggleModal(false)">Batal</button>
-                <button class="btn-ajukan" onclick="showSuccess()">Ajukan</button>
-            </div>
+                    <button type="submit"
+                            class="btn-ajukan">
+                        Ajukan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -503,7 +525,220 @@ $r = $data[$ruang] ?? $data['rapatb'];
         </div>
     </div>
 </div>
+    <?php if(isset($_GET['success'])): ?>
+    <script>
+    window.onload = function(){
+        document.getElementById("successPopup")
+                .classList.add("active");
+    };
+    </script>
+    <?php endif; ?>
+    <script>
+    let dateStart = new Date();
+    let dateEnd = new Date();
 
-    <script src="ruangdetail.js"></script>
+    let tanggalMulaiDipilih = "";
+    let tanggalSelesaiDipilih = "";
+
+    const monthNames = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+    ];
+
+    // =====================
+    // MODAL
+    // =====================
+
+    function toggleModal(show) {
+    const overlay = document.getElementById("overlay");
+
+    if (!overlay) return;
+
+    overlay.classList.toggle("active", show);
+
+    document.body.style.overflow = show ? "hidden" : "auto";
+
+    if (show) {
+        renderCalendar("start", dateStart);
+        renderCalendar("end", dateEnd);
+    }
+    }
+
+    // =====================
+    // CALENDAR
+    // =====================
+
+    function renderCalendar(type, dateObj) {
+    const container = document.querySelector(`#cal-${type}`);
+
+    if (!container) return;
+
+    const grid = container.querySelector(".cal-dates");
+
+    const monthLabel = container.querySelector(".month-name");
+
+    const year = dateObj.getFullYear();
+
+    const month = dateObj.getMonth();
+
+    monthLabel.innerText = `${monthNames[month]} ${year}`;
+
+    grid.innerHTML = "";
+
+    const firstDay = new Date(year, month, 1).getDay();
+
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+        let div = document.createElement("div");
+
+        div.className = "empty";
+
+        grid.appendChild(div);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+        let div = document.createElement("div");
+
+        div.innerText = d;
+
+        div.onclick = function () {
+        container
+            .querySelectorAll(".cal-dates div")
+            .forEach((el) => el.classList.remove("selected"));
+
+        div.classList.add("selected");
+
+        let hari = String(d).padStart(2, "0");
+
+        let bulan = String(month + 1).padStart(2, "0");
+
+        let tanggal = `${year}-${bulan}-${hari}`;
+
+        if (type === "start") {
+            tanggalMulaiDipilih = tanggal;
+
+            document.getElementById("tanggalMulai").value = tanggal;
+        } else {
+            tanggalSelesaiDipilih = tanggal;
+
+            document.getElementById("tanggalSelesai").value = tanggal;
+        }
+        };
+
+        grid.appendChild(div);
+    }
+    }
+
+    // =====================
+    // GANTI BULAN
+    // =====================
+
+    function changeMonth(type, val) {
+    if (type === "start") {
+        dateStart.setMonth(dateStart.getMonth() + val);
+
+        renderCalendar("start", dateStart);
+    } else {
+        dateEnd.setMonth(dateEnd.getMonth() + val);
+
+        renderCalendar("end", dateEnd);
+    }
+    }
+
+    // =====================
+    // STATUS ASET
+    // =====================
+
+    function handleAction(status) {
+    status = status.toLowerCase();
+
+    if (status === "tersedia") {
+        toggleModal(true);
+    } else if (status === "dipinjam") {
+        document.getElementById("popupDipinjam").classList.add("active");
+    } else if (status === "maintenance") {
+        document.getElementById("maintenancePopup").classList.add("active");
+    }
+    }
+
+    // =====================
+    // CLOSE POPUP
+    // =====================
+
+    function closeDipinjam() {
+    document.getElementById("popupDipinjam").classList.remove("active");
+    }
+
+    function closeMaintenance() {
+    document.getElementById("maintenancePopup").classList.remove("active");
+    }
+
+    // =====================
+    // KLIK AREA GELAP
+    // =====================
+
+    window.onclick = function (event) {
+    const overlay = document.getElementById("overlay");
+
+    const dipinjam = document.getElementById("popupDipinjam");
+
+    const maintenance = document.getElementById("maintenancePopup");
+
+    if (event.target === overlay) {
+        toggleModal(false);
+    }
+
+    if (event.target === dipinjam) {
+        closeDipinjam();
+    }
+
+    if (event.target === maintenance) {
+        closeMaintenance();
+    }
+    };
+
+    // =====================
+    // VALIDASI FORM
+    // =====================
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#overlay form");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+        const tglMulai = document.getElementById("tanggalMulai").value;
+
+        const tglSelesai = document.getElementById("tanggalSelesai").value;
+
+        if (tglMulai === "" || tglSelesai === "") {
+            alert("Pilih tanggal mulai dan tanggal selesai terlebih dahulu");
+
+            e.preventDefault();
+
+            return;
+        }
+
+        if (tglSelesai < tglMulai) {
+            alert("Tanggal selesai tidak boleh lebih kecil dari tanggal mulai");
+
+            e.preventDefault();
+
+            return;
+        }
+        });
+    }
+    });
+</script>
 </body>
 </html>

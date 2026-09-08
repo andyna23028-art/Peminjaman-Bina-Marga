@@ -1,378 +1,129 @@
-window.currentTab = "mobil";
-window.data = window.peminjamanData;
-window.selectedIndex = null;
-window.renderTableGlobal = null;
-
 document.addEventListener("DOMContentLoaded", function () {
-
-    const tabs = document.querySelectorAll(".tab");
-    const tableBody = document.getElementById("tableBody");
-    const pagination = document.getElementById("pagination");
-
-    let currentPage = 1;
-    const rowsPerPage = 5;
-
-    function animateRowsFadeUp() {
-
-        const rows = document.querySelectorAll(".row");
-
-        rows.forEach((row, index) => {
-
-            row.style.animation = "none";
-
-            row.offsetHeight;
-
-            row.style.animation =
-                `fadeUpPage 0.5s ease forwards`;
-
-            row.style.animationDelay =
-                `${index * 0.08}s`;
-        });
-    }
-
-    function renderTable(kategori) {
-
-        tableBody.innerHTML = "";
-
-        if (
-            !window.data[kategori] ||
-            window.data[kategori].length === 0
-        ) {
-
-            tableBody.innerHTML = `
-                <div style="
-                    height:420px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    font-size:18px;
-                    color:#666;
-                    font-weight:500;
-                ">
-                    Tidak ada data
-                </div>
-            `;
-
-            renderPagination();
-            return;
-        }
-
-        const start = (currentPage - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-
-        const paginatedData =
-            window.data[kategori].slice(start, end);
-
-        paginatedData.forEach((item, index) => {
-
-            const realIndex = start + index;
-
-            if (!item.status) {
-                item.status = "Diproses";
-            }
-
-            const row = document.createElement("div");
-
-            row.classList.add("row");
-
-            row.style.opacity = "0";
-
-            row.innerHTML = `
-
-                <div class="nomor">
-                    ${String(realIndex + 1).padStart(2, "0")}
-                </div>
-
-                <div>
-                    <img src="${item.gambar}" width="60">
-                </div>
-
-                <div>${item.nama}</div>
-
-                <div>${item.plat ?? '-'}</div>
-
-                <div>${item.tipe ?? '-'}</div>
-
-                <div>${item.tahun ?? '-'}</div>
-
-                <div class="status-box">
-                    <span class="status-badge ${item.status}">
-                        ${item.status}
-                    </span>
-                </div>
-
-                <div class="aksi">
-
-                    ${item.status === "Diproses" ? `
-
-                        <div
-                            class="btn-tolak"
-                            data-index="${realIndex}"
-                        >
-                            <img
-                                src="images/tolak.png"
-                                data-index="${realIndex}"
-                            >
-                        </div>
-
-                        <div
-                            class="btn-terima"
-                            data-index="${realIndex}"
-                        >
-                            <img
-                                src="images/terima.png"
-                                data-index="${realIndex}"
-                            >
-                        </div>
-
-                    ` : ``}
-
-                </div>
-            `;
-
-            tableBody.appendChild(row);
-
-        });
-
-        if (paginatedData.length < rowsPerPage) {
-
-            const emptyHeight =
-                (rowsPerPage - paginatedData.length) * 85;
-
-            const filler = document.createElement("div");
-
-            filler.style.height = `${emptyHeight}px`;
-
-            tableBody.appendChild(filler);
-
-        }
-
-        renderPagination();
-
-        setTimeout(() => {
-            animateRowsFadeUp();
-        }, 10);
-    }
-
-    function renderPagination() {
-
-        const totalData =
-            window.data[window.currentTab].length;
-
-        const totalPages =
-            Math.ceil(totalData / rowsPerPage) || 1;
-
-        pagination.innerHTML = "";
-
-        const prev = document.createElement("button");
-
-        prev.innerHTML = "‹";
-
-        prev.disabled = currentPage === 1;
-
-        prev.onclick = () => {
-
-            if (currentPage > 1) {
-
-                currentPage--;
-
-                renderTable(window.currentTab);
-
-            }
-
-        };
-
-        pagination.appendChild(prev);
-
-        for (let i = 1; i <= totalPages; i++) {
-
-            const btn = document.createElement("button");
-
-            btn.innerText = i;
-
-            if (i === currentPage) {
-                btn.classList.add("active");
-            }
-
-            btn.onclick = () => {
-
-                currentPage = i;
-
-                renderTable(window.currentTab);
-
-            };
-
-            pagination.appendChild(btn);
-
-        }
-
-        const next = document.createElement("button");
-
-        next.innerHTML = "›";
-
-        next.disabled = currentPage === totalPages;
-
-        next.onclick = () => {
-
-            if (currentPage < totalPages) {
-
-                currentPage++;
-
-                renderTable(window.currentTab);
-
-            }
-
-        };
-
-        pagination.appendChild(next);
-
-    }
-
-    window.renderTableGlobal = renderTable;
-
-    tabs.forEach(tab => {
-
-        tab.addEventListener("click", function () {
-
-            tabs.forEach(t => {
-                t.classList.remove("active");
-            });
-
-            this.classList.add("active");
-
-            window.currentTab = this.dataset.tab;
-
-            currentPage = 1;
-
-            renderTable(window.currentTab);
-
-        });
-
+  const rows = document.querySelectorAll("#tableBody .row");
+  const pagination = document.getElementById("pagination");
+
+  let currentPage = 1;
+  const rowsPerPage = 5;
+
+  function showPage(page) {
+    currentPage = page;
+
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    rows.forEach((row, index) => {
+      if (index >= start && index < end) {
+        row.style.display = "grid";
+      } else {
+        row.style.display = "none";
+      }
     });
 
-    document.addEventListener("click", function(e) {
+    renderPagination();
+  }
 
-        const btnTolak = e.target.closest(".btn-tolak");
+  function renderPagination() {
+    pagination.innerHTML = "";
 
-        if (btnTolak) {
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
 
-            window.selectedIndex =
-                parseInt(btnTolak.dataset.index);
+    if (totalPages <= 1) return;
 
-            document.getElementById("popupTolak")
-                .style.display = "flex";
+    const prev = document.createElement("button");
+    prev.innerHTML = "‹";
+    prev.disabled = currentPage === 1;
 
-            return;
-        }
+    prev.onclick = function () {
+      if (currentPage > 1) {
+        showPage(currentPage - 1);
+      }
+    };
 
-        const btnTerima = e.target.closest(".btn-terima");
+    pagination.appendChild(prev);
 
-        if (btnTerima) {
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
 
-            window.selectedIndex =
-                parseInt(btnTerima.dataset.index);
+      btn.innerText = i;
 
-            document.getElementById("popupSetuju")
-                .style.display = "flex";
+      if (i === currentPage) {
+        btn.classList.add("active");
+      }
 
-            return;
-        }
+      btn.onclick = function () {
+        showPage(i);
+      };
 
-    });
+      pagination.appendChild(btn);
+    }
 
-    renderTable(window.currentTab);
+    const next = document.createElement("button");
+    next.innerHTML = "›";
+    next.disabled = currentPage === totalPages;
 
+    next.onclick = function () {
+      if (currentPage < totalPages) {
+        showPage(currentPage + 1);
+      }
+    };
+
+    pagination.appendChild(next);
+  }
+
+  showPage(1);
 });
 
-
-function closePopupTolak() {
-
-    document.getElementById("popupTolak")
-        .style.display = "none";
-}
-
-
-function konfirmasiTolak() {
-
-    const checked = document.querySelector(
-        'input[name="alasan"]:checked'
-    );
-
-    if (!checked) {
-
-        alert("Pilih alasan penolakan!");
-
-        return;
-    }
-
-    const item =
-        window.data[window.currentTab][window.selectedIndex];
-
-    item.status = "Ditolak";
-
-    window.data[window.currentTab].splice(
-        window.selectedIndex,
-        1
-    );
-
-    window.data[window.currentTab].push(item);
-
-    document.getElementById("popupTolak")
-        .style.display = "none";
-
-    document
-        .querySelectorAll('input[name="alasan"]')
-        .forEach(r => {
-            r.checked = false;
-        });
-
-    window.renderTableGlobal(window.currentTab);
-}
-
-
-function closePopupSetuju() {
-
-    document.getElementById("popupSetuju")
-        .style.display = "none";
-}
-
-
-function konfirmasiSetuju() {
-
-    const item =
-        window.data[window.currentTab][window.selectedIndex];
-
-    item.status = "Diterima";
-
-    window.data[window.currentTab].splice(
-        window.selectedIndex,
-        1
-    );
-
-    window.data[window.currentTab].push(item);
-
-    document.getElementById("popupSetuju")
-        .style.display = "none";
-
-    window.renderTableGlobal(window.currentTab);
-}
-
+// ======================
+// LOGOUT
+// ======================
 
 function openLogout() {
-
-    document.getElementById("logoutPopup")
-        .style.display = "flex";
+  document.getElementById("logoutPopup").style.display = "flex";
 }
-
 
 function closeLogout() {
-
-    document.getElementById("logoutPopup")
-        .style.display = "none";
+  document.getElementById("logoutPopup").style.display = "none";
 }
 
-
 function logout() {
+  window.location.href = "berandabeforelog.php";
+}
 
-    window.location.href = "berandabeforelog.php";
+// ======================
+// POPUP TOLAK
+// ======================
+
+function openPopupTolak() {
+  document.getElementById("popupTolak").style.display = "flex";
+}
+
+function closePopupTolak() {
+  document.getElementById("popupTolak").style.display = "none";
+}
+
+function konfirmasiTolak() {
+  const alasan = document.querySelector('input[name="alasan"]:checked');
+
+  if (!alasan) {
+    alert("Pilih alasan penolakan terlebih dahulu!");
+    return;
+  }
+
+  closePopupTolak();
+}
+
+// ======================
+// POPUP SETUJU
+// ======================
+
+function openPopupSetuju() {
+  document.getElementById("popupSetuju").style.display = "flex";
+}
+
+function closePopupSetuju() {
+  document.getElementById("popupSetuju").style.display = "none";
+}
+
+function konfirmasiSetuju() {
+  closePopupSetuju();
 }

@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     getRows().forEach(bindActions);
 
-    submitBtn.onclick = () => {
+    /*submitBtn.onclick = () => {
 
         const inputs =
             document.querySelectorAll(
@@ -556,7 +556,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.display = "none";
 
         showPage(1);
-    };
+    };*/
 
     function updateNumbering() {
 

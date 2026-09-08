@@ -3,26 +3,7 @@ $currentPage = 'kelolauser';
 
 session_start();
 
-if(!isset($_SESSION['admin'])){
-    header("Location: loginuser.php");
-    exit;
-}
-
 include 'koneksi.php';
-
-// PROSES HAPUS USER
-if(isset($_GET['hapus'])){
-
-    $id = (int)$_GET['hapus'];
-
-    mysqli_query(
-        $conn,
-        "DELETE FROM user WHERE id_user = $id"
-    );
-
-    header("Location: kelolauser.php");
-    exit;
-}
 
 // AMBIL DATA USER
 $query = mysqli_query($conn,"SELECT * FROM user");
@@ -559,11 +540,169 @@ body {
     }
 }
 
+.upload-box-import{
+    margin-top:20px;
+    border:2px solid #bdbdbd;
+    border-radius:25px;
+    padding:35px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.25s;
+}
+
+.upload-box-import:hover{
+    background:#eef3ff;
+}
+
+.upload-icon-import{
+    width:95px;
+    opacity:.6;
+    margin-bottom:15px;
+}
+
+.upload-title{
+    font-size:16px;
+    font-weight:500;
+    margin-bottom:8px;
+}
+
+.upload-box-import small{
+    color:#444;
+    font-size:14px;
+}
+
+.file-name{
+    margin-top:15px;
+    font-size:14px;
+    color:#082567;
+    font-weight:600;
+}
+/* POPUP IMPORT */
+
+.popup-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+}
+
+.popup-box{
+    width:550px;
+    background:#f3f3f3;
+    border-radius:30px;
+    padding:30px;
+    text-align:center;
+    animation:fadeIn .25s ease;
+}
+
+.popup-box h2{
+    color:#082567;
+    font-size:24px;
+    margin-bottom:8px;
+}
+
+.popup-subtitle{
+    color:#666;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.upload-box-import{
+    border:3px solid #c8c8c8;
+    border-radius:30px;
+    padding:35px 20px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.upload-box-import:hover{
+    background:#eef3ff;
+}
+
+.upload-icon-import{
+    width:95px;
+    opacity:.65;
+    margin-bottom:15px;
+}
+
+.upload-title{
+    font-size:17px;
+    font-weight:500;
+    margin-bottom:5px;
+}
+
+.upload-box-import small{
+    font-size:14px;
+    color:#444;
+}
+
+.file-name{
+    margin-top:15px;
+    font-size:14px;
+    color:#082567;
+    font-weight:600;
+}
+
+.popup-buttons{
+    display:flex;
+    gap:12px;
+    margin-top:25px;
+}
+
+.btn-simpan{
+    flex:1;
+    background:#082567;
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.2s;
+}
+
+.btn-simpan:hover{
+    transform:translateY(-2px);
+}
+
+.import-header{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.btn-import{
+    background:#ffc400;
+    padding:10px 18px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    transition:.2s;
+    min-width:140px
+}
+
+.btn-import img{
+    width:20px;
+    height:20px;
+}
+
+.btn-import:hover{
+    background:#e6b800;
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
 </style>
 </head>
 
 <body>
-
 
 <div class="sidebar">
     <div class="logo">
@@ -600,13 +739,31 @@ body {
 <div class="table-content">
 
 <div class="table-head">
+
     <div></div>
-    <div></div>
+
+    <div class="import-header">
+       <button
+    type="button"
+    class="btn-import"
+    id="openImport">
+
+    <img src="images/import.png">
+
+    Import Data
+
+</button>
+    </div>
+
     <div>Nama</div>
     <div>NIP</div>
     <div>No. telepon</div>
     <div>Password</div>
+
     <div></div>
+
+</div>
+
 </div>
 
 <div class="table-body">
@@ -676,7 +833,68 @@ while($u = mysqli_fetch_assoc($query)):
         <button class="btn-hapus">Hapus</button>
     </div>
 </div> 
-</div>    
+</div>  
+ <div id="popupImport" class="popup-overlay">
+
+    <div class="popup-box">
+
+        <h2>Import Data</h2>
+
+        <p class="popup-subtitle">
+            Pilih file Excel (.xlsx) yang akan diimport
+        </p>
+
+        <div class="upload-box-import" id="uploadExcelBox">
+
+            <img
+                src="images/unggah.png"
+                class="upload-icon-import"
+            >
+
+            <div class="upload-title">
+                klik untuk mengunggah
+            </div>
+
+            <small>
+                Seret dan lepas berkas disini
+            </small>
+
+            <div
+                id="fileNameExcel"
+                class="file-name"
+            >
+            </div>
+
+            <input
+                type="file"
+                id="fileImport"
+                accept=".xlsx,.xls"
+                hidden
+            >
+
+        </div>
+
+        <div class="popup-buttons">
+
+            <button
+                id="btnBatalImport"
+                class="btn-batal"
+            >
+                Batal
+            </button>
+
+            <button
+                id="btnImport"
+                class="btn-simpan"
+            >
+                Import
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 <div class="popup" id="logoutPopup">
     <div class="popup-content">

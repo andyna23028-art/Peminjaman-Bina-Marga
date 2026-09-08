@@ -1,17 +1,15 @@
 <?php
+session_start();
+
 $currentPage = 'kelolaruangan';
 
-$dataRuangan = [
-    ["nama"=>"R. RAPAT B","lantai"=>"2","kode"=>"B.2.130.115","kapasitas"=>"40 Orang","gambar"=>"images/rapatb.png","status"=>"Tersedia"],
-    ["nama"=>"R. RAPAT K","lantai"=>"2","kode"=>"A.2.350.225","kapasitas"=>"15 Orang","gambar"=>"images/rapatk.png","status"=>"Dipinjam"],
-    ["nama"=>"R. DISKUSI","lantai"=>"3","kode"=>"B.3.131.116","kapasitas"=>"10 Orang","gambar"=>"images/diskusi.png","status"=>"Dipinjam"],
-    ["nama"=>"R. AVI","lantai"=>"1","kode"=>"C.1.339.467","kapasitas"=>"100 Orang","gambar"=>"images/avi.png","status"=>"Tersedia"],
-    ["nama"=>"R. WEB","lantai"=>"2","kode"=>"C.2.755.911","kapasitas"=>"50 Orang","gambar"=>"images/web.png","status"=>"Tersedia"],
-    ["nama"=>"PANDHAWA","lantai"=>"3","kode"=>"A.3.550.458","kapasitas"=>"350 Orang","gambar"=>"images/pandhawa.png","status"=>"Dipinjam"],
-    ["nama"=>"LAP. TENNIS","lantai"=>"1","kode"=>"B.1.120.111","kapasitas"=>"4 Orang","gambar"=>"images/tennis.png","status"=>"Dipinjam"],
-    ["nama"=>"LAB","lantai"=>"1","kode"=>"A.1.250.222","kapasitas"=>"10 Orang","gambar"=>"images/lab.png","status"=>"Tersedia"],
-    ["nama"=>"AULA","lantai"=>"3","kode"=>"C.3.321.756","kapasitas"=>"300 Orang","gambar"=>"images/aula.png","status"=>"Maintenance"]
-];
+include "koneksi.php";
+
+$query = mysqli_query($conn, "SELECT * FROM ruangan ORDER BY id DESC");
+
+if (!$query) {
+    die("Query error: " . mysqli_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +17,6 @@ $dataRuangan = [
 <head>
 <meta charset="UTF-8">
 <title>Kelola Ruangan</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 * {
@@ -159,13 +156,16 @@ body {
 
 .btn-tambah {
     background:#ffc400;
-    padding:8px 15px;
+    padding:10px 18px;
     border-radius:10px;
     font-weight:600;
-    display:flex;
+    display:inline-flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
     cursor:pointer;
+    transition:0.2s;
+    border:none; /* TAMBAHKAN */
+    outline:none;
 }
 
 .btn-tambah img {
@@ -201,7 +201,28 @@ body {
     flex:1;
     overflow:hidden;
 }
+.status{
+    display:inline-block;
+    padding:7px 16px;
+    border-radius:8px;
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    min-width:110px;
+    text-align:center;
+}
 
+.status.tersedia{
+    background:#09DB22;
+}
+
+.status.dipinjam{
+    background:#FF0000;
+}
+
+.status.maintenance{
+    background:#071D63;
+}
 
 .pagination {
     display: flex;
@@ -326,12 +347,29 @@ tr {
 }
 
 
-.mobil-img {
+.ruangan-img {
     width:80px;
 }
 .action {
     display:flex;
     gap:10px;
+}
+.editBtn, .delete {
+    background:transparent;
+    border:none;
+    cursor:pointer;
+}
+
+.editBtn img,
+.delete img {
+    width:25px;
+    transition:0.2s;
+}
+
+.editBtn img:hover,
+.delete img:hover {
+    transform:scale(1.15);
+    opacity:0.8;
 }
 
 
@@ -654,8 +692,15 @@ tr {
 }
 
 .btn-hapus-delete {
-    background: #082567;
-    color: white;
+    background:#082567;
+    color:white;
+    border:none;
+    outline:none;
+    text-decoration:none; /* HILANGKAN GARIS BAWAH */
+    
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
 .btn-batal-delete:hover,
@@ -679,7 +724,7 @@ tr {
 }
 
 
-.status {
+#editStatus {
     display:inline-block;
     padding:6px 14px;
     border-radius:6px;
@@ -687,21 +732,18 @@ tr {
     font-weight:600;
     color:#fff; 
     min-width:100px;
-    text-align:center;
 }
 
 
-.status.tersedia {
+#editStatus.tersedia {
     background:#09DB22;
 }
 
-
-.status.dipinjam {
+#editStatus.dipinjam {
     background:#FF0000;
 }
 
-
-.status.maintenance {
+#editStatus.maintenance {
     background:#071D63;
 }
 .arrow {
@@ -828,7 +870,6 @@ table {
 <body>
 
 
-
 <div class="sidebar">
     <div class="logo">
         <img src="images/logobina.png">
@@ -839,14 +880,14 @@ table {
     </div>
 
     <div class="menu">
-        <a href="dashboard.php" class="dashboard">Dashboard</a>
-        <a href="kelolamobil.php" class="kelolamobil">Kelola Mobil</a>
-        <a href="kelolamotor.php" class="kelolamotor">Kelola Motor</a>
-        <a href="kelolaruangan.php" class="kelolaruangan active">Kelola Ruangan</a>
-        <a href="kelolauser.php" class="kelolauser">Kelola User</a>
-        <a href="peminjamanberjalan.php" class="peminjamanberjalan">Peminjaman Berjalan</a>
-        <a href="laporanpengaduan.php" class="laporanpengaduan">Laporan Pengaduan</a>
-        <a href="profileadmin.php" class="profileadmin">Profile</a>
+        <a href="dashboard.php" class="dashboard <?= $currentPage=='dashboard'?'active':'' ?>">Dashboard</a>
+        <a href="kelolamobil.php" class="kelolamobil <?= $currentPage=='kelolamobil'?'active':'' ?>">Kelola Mobil</a>
+        <a href="kelolamotor.php" class="kelolamotor <?= $currentPage=='kelolamotor'?'active':'' ?>">Kelola Motor</a>
+        <a href="kelolaruangan.php" class="kelolaruangan <?= $currentPage=='kelolaruangan'?'active':'' ?>">Kelola Ruangan</a>
+        <a href="kelolauser.php" class="kelolauser <?= $currentPage=='kelolauser'?'active':'' ?>">Kelola User</a>
+        <a href="peminjamanberjalan.php" class="peminjamanberjalan <?= $currentPage=='peminjaman'?'active':'' ?>">Peminjaman Berjalan</a>
+        <a href="laporanpengaduan.php" class="laporanpengaduan <?= $currentPage=='laporan'?'active':'' ?>">Laporan Pengaduan</a>
+        <a href="profileadmin.php" class="profileadmin <?= $currentPage=='profile'?'active':'' ?>">Profile</a>
     </div>
 
     <button class="logout" onclick="openLogout()">Keluar</button>
@@ -855,143 +896,328 @@ table {
 
 <div class="content">
 
-    <div class="header">KELOLA RUANGAN</div>
+   <div class="header fade-up fade-delay-1">KELOLA RUANGAN</div>
 
-    <div class="table-wrapper">
+    <div class="table-wrapper fade-up fade-delay-2">
 
         <div class="table-body">
 
             <table>
 
                 <thead>
-                <tr>
-                    <th>
-                        <div class="btn-tambah" id="openModal">
-                            <img src="images/tambah.png"> Tambah
-                        </div>
-                    </th>
-                    <th>Nama</th>
-                    <th>Lantai</th>
-                    <th>Kode</th>
-                    <th>Kapasitas</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-                </thead>
+<tr>
+    <th>
+        <button type="button" class="btn-tambah" id="openModal">
+            <img src="images/tambah.png">
+            Tambah
+        </button>
+    </th>
+
+    <th>Nama</th>
+    <th>Kode</th>
+    <th>Lantai</th>
+    <th>Kapasitas</th>
+    <th>Status</th>
+    <th>Aksi</th>
+</tr>
+</thead>
 
                 <tbody id="tableBody">
-                <?php $no=1; foreach($dataRuangan as $r): ?>
-                <tr class="row-ruangan">
 
-                    <td>
-                        <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
-                        <img src="<?= $r['gambar'] ?>" class="mobil-img">
-                    </td>
+<?php
+$no = 1;
+while ($m = mysqli_fetch_assoc($query)):
+?>
+<tr>
+    <td>
+        <?= str_pad($no++,2,'0',STR_PAD_LEFT) ?>.
+        <img src="<?= $m['gambar'] ?>" class="ruangan-img">
+    </td>
 
-                    <td><?= $r['nama'] ?></td>
-                    <td><?= $r['lantai'] ?></td>
-                    <td><?= $r['kode'] ?></td>
-                    <td><?= $r['kapasitas'] ?></td>
+    <td><?= htmlspecialchars($m['nama']) ?></td>
+    <td><?= htmlspecialchars($m['kode']) ?></td>
+    <td><?= htmlspecialchars($m['lantai']) ?></td>
+    <td><?= htmlspecialchars($m['kapasitas']) ?></td>
 
-                    <td class="status-cell">
-                        <span class="status <?= strtolower($r['status']) ?>">
-                            <?= $r['status'] ?>
-                        </span>
-                    </td>
+    <td class="status-cell">
+        <span class="status <?= strtolower($m['status']) ?>">
+            <?= $m['status'] ?>
+        </span>
+    </td>
 
-                    <td>
-                        <div class="action">
-                            <div class="edit">
-                                <img src="images/editfile.png">
-                            </div>
+    <td>
+        <div class="action">
 
-                            <div class="delete">
-                                <img src="images/hapusfile.png">
-                            </div>
-                        </div>
-                    </td>
+            <a href="#"
+               class="editBtn"
+               data-id="<?= $m['id'] ?>"
+               data-nama="<?= htmlspecialchars($m['nama']) ?>"
+               data-kode="<?= htmlspecialchars($m['kode']) ?>"
+               data-lantai="<?= htmlspecialchars($m['lantai']) ?>"
+               data-kapasitas="<?= htmlspecialchars($m['kapasitas']) ?>"
+               data-status="<?= $m['status'] ?>">
+                <img src="images/editfile.png">
+            </a>
 
-                </tr>
-                <?php endforeach; ?>
-                </tbody>
+            <a href="#"
+               class="delete"
+               data-id="<?= $m['id'] ?>">
+                <img src="images/hapusfile.png">
+            </a>
 
+        </div>
+    </td>
+</tr>
+<?php endwhile; ?>
+
+</tbody>
             </table>
 
         </div>
 
-        
         <div class="pagination" id="pagination"></div>
 
     </div>
 
 </div>
 
-<div class="modal" id="modalForm">
-    <div class="modal-content">
 
-        <h2>Buat Data Aset Ruangan</h2>
+<div class="modal" id="modalForm">
+    <div class="modal-content fade-up fade-delay-3">
+
+        <h2>Buat Data Aset</h2>
 
         <div class="subtitle">
-            Masukkan informasi aset ruangan baru dengan lengkap dan benar.
+            Masukkan informasi aset baru dengan lengkap dan benar.
         </div>
 
-        <div class="form">
-            <label>Nama</label>
-            <input type="text">
+       <form 
+            id="formMotor"
+            action="simpan_ruangan.php"
+            method="POST"
+            enctype="multipart/form-data">
 
-            <label>Lantai</label>
-            <input type="text">
+            <input 
+                type="hidden"
+                name="kategori"
+                value="ruangan"
+            >
 
-            <label>Kode</label>
-            <input type="text">
-
-            <label>Kapasitas</label>
-            <input type="text">
-        </div>
-
-        <div class="upload-label">
-            Unggah foto untuk ruangan baru
-        </div>
-
-        <div class="upload-box" id="uploadBox">
-            <img src="images/unggah.png" class="upload-icon">
-
-            <div>klik untuk mengunggah</div>
-            <small>Seret dan lepas berkas disini</small>
-
-            <img id="previewImg" class="preview-img">
-            <input type="file" id="fileInput" hidden>
-        </div>
-
-        <div class="status-dropdown">
-
-            <div class="status-selected" id="selectedStatus">
-                Status
-                <span class="arrow">⌄</span>
+            <div class="form">
+                <label>Nama</label>
+                <input type="text"name="nama"required>
+                <label>Kode</label>
+                <input type="text"name="kode"required>
+                <label>Lantai</label>
+                <input type="text"name="lantai"required>
+                <label>Kapasitas</label>
+                <input type="number"name="kapasitas"required>
+            </div>
+            
+            <div class="upload-label">
+                Unggah foto untuk aset baru
             </div>
 
-            <div class="status-options" id="statusOptions">
-                <div class="option tersedia">Tersedia</div>
-                <div class="option dipinjam">Dipinjam</div>
-                <div class="option maintenance">Maintenance</div>
+            <div class="upload-box" id="uploadBox">
+
+                <img
+                    src="images/unggah.png"
+                    class="upload-icon"
+                >
+
+                <div>klik untuk mengunggah</div>
+                <small>Seret dan lepas berkas disini</small>
+
+                <img
+                    id="previewImg"
+                    class="preview-img"
+                >
+            
+                <input
+                    type="file"
+                    id="fileInput"
+                    name="gambar"
+                    accept="image/*"
+                    hidden
+                >
+
             </div>
 
-        </div>
+                <div class="status-dropdown">
 
-        <div class="modal-footer">
+                <div
+                    class="status-selected"
+                    id="selectedStatus"
+                >
+                    Status
+                    <span class="arrow">⌄</span>
+                </div>
 
-            <button type="button" class="btn-batal" id="closeModal">
+                <input
+                    type="hidden"
+                    id="statusInput"
+                    name="status"
+                    value="Tersedia"
+                >
+
+                <!-- untuk halaman ruangan -->
+                <input
+                    type="hidden"
+                    name="kategori"
+                    value="ruangan"
+                >
+
+                <div
+                    class="status-options"
+                    id="statusOptions"
+                >
+                    <div class="option tersedia">
+                        Tersedia
+                    </div>
+
+                    <div class="option dipinjam">
+                        Dipinjam
+                    </div>
+
+                    <div class="option maintenance">
+                        Maintenance
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-batal"
+                    id="closeModal"
+                >
+                    Batal
+                </button>
+
+                <button 
+                    type="submit" name="simpan" class="btn-submit">
+                    Tambah
+                </button>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="editModal">
+
+    <div class="modal-content">
+
+        <h2>Edit Data Ruangan</h2>
+
+        <form action="update_ruangan.php" method="POST">
+
+            <input
+                type="hidden"
+                id="editId"
+                name="id">
+
+            <div class="form">
+
+                <label>Nama</label>
+                <input
+                    type="text"
+                    id="editNama"
+                    name="nama"
+                    required>
+
+                <label>Kode</label>
+                <input
+                    type="text"
+                    id="editKode"
+                    name="kode"
+                    required>
+
+                <label>Lantai</label>
+                <input
+                    type="text"
+                    id="editLantai"
+                    name="lantai"
+                    required>
+
+                <label>Kapasitas</label>
+                <input
+                    type="number"
+                    id="editKapasitas"
+                    name="kapasitas"
+                    required>
+
+                <label>Status</label>
+                <select
+                    id="editStatus"
+                    name="status">
+
+                    <option value="Tersedia">
+                        Tersedia
+                    </option>
+
+                    <option value="Dipinjam">
+                        Dipinjam
+                    </option>
+
+                    <option value="Maintenance">
+                        Maintenance
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn-batal"
+                    id="closeEdit">
+
+                    Batal
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-submit">
+
+                    Simpan
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="popup" id="deletePopup">
+
+    <div class="delete-box">
+        <img src="images/hapus.png"class="delete-img">
+        <h2>Hapus Data Aset Ruangan?</h2>
+        <p>Data akan dihapus permanen</p>
+
+        <div class="delete-buttons">
+            <button class="btn-batal-delete"id="cancelDelete">
                 Batal
             </button>
 
-            <button type="button" class="btn-submit">
-                Tambah
-            </button>
-
+            <a
+                id="confirmDelete"
+                class="btn-hapus-delete">
+                Hapus
+            </a>
         </div>
-
     </div>
 </div>
+
 
 <div class="popup" id="logoutPopup">
     <div class="popup-content">
@@ -1004,9 +1230,348 @@ table {
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
 
-<script src="kelolaruangan.js"></script>
+const modal =
+document.getElementById("modalForm");
+
+const editModal =
+document.getElementById("editModal");
+
+const openBtn =
+document.getElementById("openModal");
+
+const closeBtn =
+document.getElementById("closeModal");
+
+const closeEdit =
+document.getElementById("closeEdit");
+
+openBtn.onclick = ()=>{
+
+modal.style.display="flex";
+
+};
+
+closeBtn.onclick = ()=>{
+
+modal.style.display="none";
+
+};
+
+closeEdit.onclick = ()=>{
+
+editModal.style.display="none";
+
+};
+
+window.onclick = (e)=>{
+
+if(e.target===modal)
+modal.style.display="none";
+
+if(e.target===editModal)
+editModal.style.display="none";
+
+};
+
+// EDIT
+
+document
+.querySelectorAll(".editBtn")
+.forEach(btn=>{
+
+btn.onclick = ()=>{
+
+editModal.style.display="flex";
+
+document.getElementById("editId").value =
+btn.dataset.id;
+
+document.getElementById("editNama").value =
+btn.dataset.nama;
+
+document.getElementById("editKode").value =
+btn.dataset.kode;
+
+document.getElementById("editLantai").value =
+btn.dataset.lantai;
+
+document.getElementById("editKapasitas").value =
+btn.dataset.kapasitas;
+
+const editStatus =
+document.getElementById("editStatus");
+
+editStatus.value =
+btn.dataset.status;
+
+editStatus.className =
+btn.dataset.status.toLowerCase();
+};
+
+});
+
+editStatus.addEventListener("change", function(){
+
+    this.className =
+    this.value.toLowerCase();
+
+});
+
+// DELETE
+
+const deletePopup = document.getElementById("deletePopup");
+const confirmDelete = document.getElementById("confirmDelete");
+const cancelDelete = document.getElementById("cancelDelete");
+
+document.querySelectorAll(".delete").forEach(btn => {
+
+    btn.addEventListener("click", function(e){
+
+        e.preventDefault();
+
+        const id = this.dataset.id;
+
+        confirmDelete.href =
+            "hapus_ruangan.php?id=" + id;
+
+        deletePopup.style.display = "flex";
+    });
+
+});
+
+cancelDelete.addEventListener("click", () => {
+    deletePopup.style.display = "none";
+});
+
+// UPLOAD GAMBAR
+
+const uploadBox =
+document.getElementById("uploadBox");
+
+const fileInput2 =
+document.getElementById("fileInput");
+
+const previewImg =
+document.getElementById("previewImg");
+
+uploadBox.addEventListener("click", ()=>{
+
+    fileInput2.click();
+
+});
+
+fileInput2.addEventListener("change", function(){
+
+    const file = this.files[0];
+
+    if(!file) return;
+
+    if(file.size > 2 * 1024 * 1024){
+
+        alert("Ukuran gambar maksimal 2 MB");
+        this.value = "";
+        return;
+    }
+
+    const ext =
+    file.name.split(".").pop().toLowerCase();
+
+    if(!["jpg","jpeg","png"].includes(ext)){
+
+        alert("Format harus JPG, JPEG atau PNG");
+        this.value = "";
+        return;
+    }
+
+    const reader =
+    new FileReader();
+
+    reader.onload = function(e){
+
+        previewImg.src =
+        e.target.result;
+
+        previewImg.style.display =
+        "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
 
 
+// DROPDOWN STATUS
+
+const selectedStatus =
+document.getElementById("selectedStatus");
+
+const statusOptions =
+document.getElementById("statusOptions");
+
+const statusInput =
+document.getElementById("statusInput");
+
+const arrow =
+selectedStatus.querySelector(".arrow");
+
+selectedStatus.addEventListener("click", ()=>{
+
+    statusOptions.style.display =
+    statusOptions.style.display === "block"
+    ? "none"
+    : "block";
+
+    arrow.classList.toggle("rotate");
+});
+
+document
+.querySelectorAll(".option")
+.forEach(option=>{
+
+    option.addEventListener("click", ()=>{
+
+        selectedStatus.childNodes[0].nodeValue =
+        option.textContent.trim() + " ";
+
+        statusInput.value =
+        option.textContent.trim();
+
+        selectedStatus.className =
+        "status-selected " +
+        option.classList[1];
+
+        statusOptions.style.display =
+        "none";
+
+        arrow.classList.remove("rotate");
+    });
+
+});
+
+
+// PAGINATION
+
+const rowsPerPage = 5;
+
+const rows =
+document.querySelectorAll("#tableBody tr");
+
+const pagination =
+document.getElementById("pagination");
+
+let currentPage = 1;
+
+function showPage(page){
+
+currentPage = page;
+
+rows.forEach((row,index)=>{
+
+const start =
+(page-1)*rowsPerPage;
+
+const end =
+start+rowsPerPage;
+
+row.style.display =
+(index>=start &&
+index<end)
+? ""
+: "none";
+
+});
+
+renderPagination();
+
+}
+
+function renderPagination(){
+
+const totalPages =
+Math.ceil(rows.length/rowsPerPage);
+
+pagination.innerHTML="";
+
+const prev =
+document.createElement("button");
+
+prev.innerHTML="‹";
+
+prev.disabled =
+currentPage===1;
+
+prev.onclick=
+()=>showPage(currentPage-1);
+
+pagination.appendChild(prev);
+
+for(let i=1;i<=totalPages;i++){
+
+const btn =
+document.createElement("button");
+
+btn.innerHTML=i;
+
+if(i===currentPage){
+
+btn.classList.add("active");
+
+}
+
+btn.onclick=
+()=>showPage(i);
+
+pagination.appendChild(btn);
+
+}
+
+const next =
+document.createElement("button");
+
+next.innerHTML="›";
+
+next.disabled =
+currentPage===totalPages;
+
+next.onclick=
+()=>showPage(currentPage+1);
+
+pagination.appendChild(next);
+
+}
+
+showPage(1);
+
+});
+
+// LOGOUT
+
+function openLogout(){
+
+document.getElementById(
+"logoutPopup"
+).style.display="flex";
+
+}
+
+function closeLogout(){
+
+document.getElementById(
+"logoutPopup"
+).style.display="none";
+
+}
+
+function logout(){
+
+window.location.href=
+"berandabeforelog.php";
+
+}
+</script>
 </body>
 </html>
